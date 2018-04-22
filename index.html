@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>HTML page</title>
+  <link rel="stylesheet" href="/assets/css/theme.css" />
+</head>
+
+<body>
+  <div class="app-container">
+    <main class="main-content">
+      <div class="main-inner">
+        <h1 class="page-heading">Register</h1>
+        <div class="article-desc">
+          <p>Lorem ipsum dolor sit amet, <a href="#">consectetur adipisicing</a>. Libero ut unde quaerat, optio ipsam aspernatur.</p>
+        </div>
+
+        <form action="..." class="signup-form">
+          <div class="d-flex form-group">
+            <label for="signupName" class="control-label">NAME</label>
+            <input type="text" id="signupName" class="form-control" name="signupName" />
+          </div>
+          <div class="d-flex form-group">
+            <label for="signupEmail" class="control-label">EMAIL</label>
+            <input type="email" id="signupEmail" class="form-control" name="signupEmail" required />
+          </div>
+          <div class="d-flex form-group">
+            <label for="signupPhone" class="control-label">PHONE NO</label>
+            <input type="tel" id="signupPhone" class="form-control" name="signupPhone" placeholder="+01" />
+          </div>
+          <div class="d-flex form-group has-tip">
+            <label for="signupPassword" class="control-label">PASSWORD</label>
+            <input type="password" id="signupPassword" class="form-control" name="signupPassword" required />
+          </div>
+          <div class="checkbox-styled">
+            <label for="signupOpt" class="checkbox-label">
+              <input type="checkbox" id="signupOpt" class="checkbox-control" name="signupOpt" required />
+              I agree to the <a href="#">Terms of Use</a>.
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">SUBMIT</button>
+          </div>
+        </form>
+
+        <section class="section">
+          <h2 class="login-heading">Login with social media</h2>
+          <ul class="d-flex login-options">
+            <li class="login-item"><button class="btn login-btn btn-fb" type="button">F
+              <span class="mobile-hidden btn-label">Facebook</span>
+            </button></li>
+            <li class="login-item"><button class="btn login-btn btn-tw" type="button">T
+              <span class="mobile-hidden btn-label">Twitter</span>
+            </button></li>
+            <li class="login-item"><button class="btn login-btn btn-gp" type="button">G
+              <span class="mobile-hidden btn-label">Google+</span>
+            </button></li>
+          </ul>
+        </section>
+      </div>
+    </main>
+
+    <aside class="mobile-hidden aside-content">
+      <div class="welcome-text">
+        <h3 class="welcome-title">Hello World!</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing.</p>
+      </div>
+    </aside>
+
+  </div>
+</body>
+</html>

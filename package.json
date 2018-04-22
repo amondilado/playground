@@ -1,0 +1,16 @@
+{
+  "name": "login",
+  "version": "1.0.0",
+  "description": "CSS Flexbox practice",
+  "main": "gulpfile.js",
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-sass": "^3.1.0",
+    "gulp-sourcemaps": "^2.6.1",
+    "gulp-cssmin": "^0.2.0",
+    "browser-sync": "2.23.6"
+  },
+  "author": "marinakmp",
+  "license": "ISC"
+}

@@ -1,0 +1,20 @@
+.btn {
+  background-color: #ddd;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 2em;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 1.15em;
+  padding: .75em 1em;
+  text-align: center;
+  vertical-align: middle;
+  &:hover, &:focus {
+    background-color: #fff;
+  }
+}
+.btn-primary {
+  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  font-weight: bold;
+  min-width: 160px;
+}
