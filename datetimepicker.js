@@ -107,7 +107,7 @@
             d2isMin, equal_or_min,
             time = {},
             t1, t2,
-            t1_items, t2_items,
+            t1_hours, t2_hours,
             interval, timeIntervals;
 
         if(typeof element === void 0) return;
@@ -150,7 +150,7 @@
             alert("OUT OFF BOUNDS! Please select the next available date in your dropoff calendar.");
             outOfBounds = !0;
             // d1_o1d = 0;
-            self.enableTimeEndValues(t2_items);
+            self.enableTimeEndValues(t2_hours);
             self.setDate(dp2, addMoment(minDdate, 1, opts.format));
             self.formatDates();
         },
@@ -337,7 +337,7 @@
                 time.start.indexMin = getTimeOffset(interval, min, time.start.index);
                 self.setTimeStart(time.start.index);
                 console.log('__VALIDATE update t1: ', time);
-                self.disableStartPastHours(time.start.index, t1_items);
+                self.disableStartPastHours(time.start.index, t1_hours);
             }
             // equal, isd2Min
             if (d2isMin || datesEqual) {
@@ -352,7 +352,7 @@
                         return;
                     }
                 }
-                self.disableEndPastHours(time.start.index, t2_items);
+                self.disableEndPastHours(time.start.index, t2_hours);
             }
 
             console.log('__VALIDATE updated: ',time);
@@ -374,19 +374,21 @@
             timeIntervals = app.intervalHours;
             t1 = app.$.time1;
             t2 = app.$.time2;
-            t1_items = app.getElements('plb_1');
-            t2_items = app.getElements('plb_2');
+            t1_hours = app.getElements('timeStartHoursList');
+            t1_minutes = app.getElements('timeStartMinutesList');
+            t2_hours = app.getElements('timeEndHoursList');
+            t2_minutes = app.getElements('timeEndMinutesList');
             self.initDates();
 
             // INIT TIME
             self.initTime(o);
 
             if (isToday) {
-                self.disableStartPastHours(time.start.index, t1_items);
+                self.disableStartPastHours(time.start.index, t1_hours);
             }
             if (d2isMin || datesEqual) {
                 console.log('--- > minDdate === dp2.date: ', minDdate === dp2.date);
-                self.disableEndPastHours(time.end.index, t2_items);
+                self.disableEndPastHours(time.end.index, t2_hours);
             }
 
             // EVENTS
@@ -412,10 +414,10 @@
                 if (isToday) {
                     dp2.minDate = moment(minDdate).subtract(1, "day").format(opts.format);
                     dp2.enforceDateChange();
-                    self.disableStartPastHours(time.start.index, t1_items);
+                    self.disableStartPastHours(time.start.index, t1_hours);
                     self.validateTimeDuration();
                 } else {
-                    self.enableTimeStartValues(t1_items);
+                    self.enableTimeStartValues(t1_hours);
                 }
                 // start + min >= end
                 if(moment(minDdate).isSameOrAfter(dp2.date)) {
@@ -427,10 +429,10 @@
                         self.setDate(dp2, minDdate);
                     }
                     // Disable end hours from time.start
-                    self.disableEndPastHours(time.start.index, t2_items);
+                    self.disableEndPastHours(time.start.index, t2_hours);
                     // Calc indexes
                 } else {
-                    self.enableTimeEndValues(t2_items);
+                    self.enableTimeEndValues(t2_hours);
                 }
 
                 self.formatDates();
