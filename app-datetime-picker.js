@@ -131,6 +131,7 @@ const template = html`
             </button>
             <app-datepicker
                 id="dp1"
+                range-dates="[[rangeDates]]"
                 format="yyyy-mm-dd"
                 date="{{selectedDate_1}}"
                 on-date-changed="_onSelectedDateChanged"
@@ -167,6 +168,7 @@ const template = html`
                         </template>
                     </paper-listbox>
                 </paper-menu-button>
+                <button on-click="timeStartSubmitted">OK</button>
             </div>
         </div>
         <div id="dateTime2" class="adp-item">
@@ -176,6 +178,7 @@ const template = html`
             </button>
             <app-datepicker
                 id="dp2"
+                range-dates="[[rangeDates]]"
                 format="yyyy-mm-dd"
                 date="{{selectedDate_2}}"
                 on-date-changed="_onSelectedDateChanged"
@@ -187,29 +190,30 @@ const template = html`
             ></app-datepicker>
 
             <div class="time-selection">
-                <paper-menu-button id="time1" horizontal-offset="[[paperMenuBtnHoffset]]">
+                <paper-menu-button id="time2" horizontal-offset="[[paperMenuBtnHoffset]]">
                     <div slot="dropdown-trigger">
                         <button class="btn btn-time" type="button"><iron-icon icon="app-icons:time" aria-hidden="true"></iron-icon>
                         <span class="btn-label">{{_timeEnd.h}}</span></button>
                     </div>
                     <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{_timeEnd.h}}" id="timeEndHoursList">
-                        <template is="dom-repeat" items="[[hours]]" id='t1_list'>
+                        <template is="dom-repeat" items="[[hours]]" id='t2_list'>
                             <paper-item data-index$="[[index]]">[[item]]</paper-item>
                         </template>
                     </paper-listbox>
                 </paper-menu-button>
 
-                <paper-menu-button id="minutes1" horizontal-offset="[[paperMenuBtnHoffset]]">
+                <paper-menu-button id="minutes2" horizontal-offset="[[paperMenuBtnHoffset]]">
                     <div slot="dropdown-trigger">
                         <button class="btn btn-time" type="button"><iron-icon icon="app-icons:time" aria-hidden="true"></iron-icon>
-                        <span class="btn-label">[[_getIndexValue(_timeEnd.m, minutes)]]</span></button>
+                        <span class="btn-label">[[_timeEnd.v]]</span></button>
                     </div>
                     <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{_timeEnd.m}}" id="timeEndMinutesList">
-                        <template is="dom-repeat" items="[[_setTimeInterval(timeInterval)]]" id='t1m_list'>
+                        <template is="dom-repeat" items="[[_setTimeInterval(timeInterval)]]" id='t2m_list'>
                             <paper-item data-index$="[[index]]" value$="[[item]]">[[item]]</paper-item>
                         </template>
                     </paper-listbox>
                 </paper-menu-button>
+                <button on-click="timeEndSubmitted">OK</button>
             </div>
         </div>
     </template>
@@ -220,8 +224,17 @@ document.body.appendChild(template.content);
 Polymer({
     is: 'app-datetime-picker',
     behaviors: [DatePickerBehavior],
-    //
+    
     properties: {
+        /**
+         * WIP Array of dates to hightlight to indicate duration
+         */
+        rangeDates: {
+            type: Array,
+            value: function() {
+                return [];
+            }
+        },
         timeInterval: {
             type: String,
             value: '00'
@@ -234,17 +247,17 @@ Polymer({
             type: Array,
             computed: '_setHours()'
         },
-        timeStart: { type: String, notify: true, observer: '_initTimeStart' },
-        _timeStart: { type: Object, notify: true, value: function() { return { h: 12, m: 0 } } },
-        timeEnd: { type: String, notify: true, observer: '_initTimeEnd' },
-        _timeEnd: { type: Object, notify: true, value: function() { return { h: 12, m: 0 } } },
+        timeStart: { type: String, notify: true, observer: '_computeTimeStart' },
+        _timeStart: { type: Object, notify: true, value: function() { return { h: 12, m: 0, v:""} } },
+        timeEnd: { type: String, notify: true, observer: '_computeTimeEnd' },
+        _timeEnd: { type: Object, notify: true, value: function() { return { h: 12, m: 0, v:"" } } },
 
         paperMenuBtnHoffset: Number,
     },
 
     observers: [
-        '_computeTimeStart(_timeStart.*)',
-        '_computeTimeEnd(_timeEnd.*)',
+        '_timeStartChanged(_timeStart.*)',
+        '_timeEndChanged(_timeEnd.h,_timeEnd.m)',
     ],
 
     _setHours: function() {
@@ -261,37 +274,47 @@ Polymer({
     _validateTime() {
 
     },
-    _initTimes: function(el, val) {
+    _initTimes: function(key, val) {
+        // console.log('val',val,' of: ',this[key]);
         let idxh, idxm, nval = val.split(':');
         if(parseInt(nval[0]) > 1 && parseInt(nval[0]) < 23) {
-            this[el].h = parseInt(nval[0]);
-            this.notifyPath(el+'.h');
+            this[key].h = parseInt(nval[0]);
+            this.notifyPath(key+'.h');
         }
 
         idxm = this.minutes.indexOf(nval[1]);
         if(idxm > -1) {
-            this[el].m = idxm;
-            this.notifyPath(el+'.m'); //el['m']
+            this[key].m = idxm;
+            this[key].v = nval[1];
+            this.notifyPath(key+'.m'); //key['m']
+            this.notifyPath(key+'.v');
         }
+        // console.log('new time -->', this[key]);
     },
-    _initTimeStart: function(n,o) {
-        if(typeof n === 'undefined') return;
-        this._initTimes('_timeStart',n);
+    _computeTimeStart: function(n,o) {
+        (typeof n !== 'undefined') && this._initTimes("_timeStart",n);
     },
-    _initTimeEnd: function(n,o) {
-        if(typeof n === 'undefined') return;
-        this._initTimes('_timeEnd',n);
-    },
-    _computeTimeStart: function(p) {
-        console.log('_computeTimeStart',p.path);
-    },
-    _computeTimeEnd: function(p) {
-        console.log('_computeTimeEnd',p.path);
-    },
-    _getIndexValue: function(i, arr) {
-        return arr[i]
+    _computeTimeEnd: function(n,o) {
+        (typeof n !== 'undefined') && this._initTimes("_timeEnd",n);
     },
 
+    _timeStartChanged: function(p) {
+    },
+    timeStartSubmitted: function(e) {
+    },
+    _timeEndChanged: function(p) {
+        this._timeEnd.v = this._getIndexValue(this._timeEnd.m, this.minutes);
+        this.notifyPath('_timeEnd.v'); //key['m']
+        // console.log('_timeEndChanged --> _timeEnd', this._timeEnd);
+    },
+    timeEndSubmitted: function(e) {
+    },
+    _getIndexValue: function(i, arr) {
+        if(typeof i !== 'undefined') {
+            // console.log('_getIndexValue arr ', arr,' arr[i]: ', arr[i]);
+            return (arr[i]) ? arr[i] : "00"
+        }
+    },
     getElements: function(el) {
         return dom(this.$[el]).querySelectorAll('paper-item');
     },
