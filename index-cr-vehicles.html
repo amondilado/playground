@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>veh list with cal</title>
+    <meta name="description" content="nmelements description">
+
+    <base href="/">
+
+    <!-- See https://goo.gl/OOhYW5 -->
+    <link rel="manifest" href="/manifest.json">
+    <custom-style>
+        <style is="custom-style">
+            html {
+                --tertiary: #f05526;
+                --grid-gutter: 10px;
+                --grid-gutter-half: 5px;
+                --body-color: #2d4664;
+                --primary-ll: #7fabdc;
+                /*--filter-item: {*/
+                /*};*/
+                /*--filters-selected-color: var(--secondary);*/
+                /*--filter-item-checkbox-border-color: #778a99;*/
+                /*--filter-item-checkbox-border-width: 2px;*/
+                /*--filter-item-checkbox-size: 16px;*/
+                /*--filter-item-checkbox: {};*/
+
+                /*--display-item-bg: transparent;*/
+                /*--display-item-color: #778a99;*/
+                /*--display-item-bg-selected: var(--tertiary);*/
+                /*--display-item-color-selected: #fff;*/
+                /*--pager-bg-color: #fff;*/
+                /*--pager-color: var(--primary);*/
+                /*--pager-icon-size: 17px;*/
+                /*--pager-selected-bg-color: var(--tertiary);*/
+                /*--filters-pane-bg: #fff*/
+
+                /*--vehicle-thumb-height:50px;*/
+                /*--vehicle-thumb-width:80px;*/
+                --skeleton-carousel-thumb-selected: {
+                    bottom: 0;
+                    left:0;
+                    width: 0;
+                    height: 0;
+                    border-style: solid;
+                    border-width: 8px 0 0 8px;
+                    border-color: transparent transparent transparent var(--secondary);
+                };
+                --vehicle-unavailable-bg: var(--tertiary);
+            }
+
+            cr-fleet, cr-vehicles {
+                --vehicle-attributes-size: 40px;
+                --sort-btn-lbl: {font-weight: bold};
+                /*--vehicle-item-discount:{font-size:14px;};*/
+                /*--btn-book: {};*/
+                /*--paper-menu-button: {}*/
+            }
+
+            iron-image {
+                --iron-image-width: 100%
+            }
+
+            datetime-picker:not(:defined) {
+                height: 160px;
+                display: block;
+            }
+            datetime-picker {
+                font-family: var(--font-family-sans-serif);
+                color: var(--body-color);
+
+                --adp-backdrop-bg: rgba(0, 0, 0, 0);
+                --app-datepicker: {
+                    border-radius: 24px;
+                    top: 40px;
+                    left: 50%;
+                    margin-left: -140px;
+                };
+                /*--adp-navigator-bg: var(--primary);
+                  --adp-navigator-color: var(--tertiary);
+                  --app-datepicker-icon-button-color: var(--adp-navigator-color);
+                  --app-datepicker-day-of-month-border-radius: 0;
+                  --app-datepicker-days-of-month
+                */
+
+                --app-datepicker-today-color: var(--tertiary);
+                --app-datepicker-days-of-week: {
+                    font-weight: bold;
+                    padding-top: 5px;
+                    padding-bottom: 5px
+                };
+                --app-datepicker-date-hover-background-color: var(--primary-ll);
+                --app-datepicker-date-hover-color: #fff;
+                --app-datepicker-selected-day-bg: var(--primary);
+                --app-datepicker-selected-day-color: #fff;
+
+                --adp-item:{
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                };
+
+                --adp-datetime-btn: {
+                    background-color: transparent;
+                    border-radius: 24px;
+                    border-color: #fff;
+                    color: #fff;
+                    line-height: 1;
+                    margin-bottom: 10px;
+                    height: 160px;
+                    position: relative;
+                    font-weight: 600;
+                };
+                --adp-datetime-btn-hover: {
+                    background-color: #fff;
+                    color: var(--primary);
+                };
+                --adp-datetime-btn-icon: {
+                    position: absolute;
+                    right: 14px;
+                    top: 14px;
+                };
+                --adp-date-section: {
+                    position: relative;
+                    flex: 0 0 60%;
+                    max-width: 60%;
+                };
+                --adp-btn-date: {
+                    padding: 5px;
+                };
+                --adp-time-section: {
+                    /*margin-left: 20px;*/
+                    flex: 0 0 40%;
+                    max-width: 40%;
+                };
+                --adp-btn-time: {
+                    font-size: 38px;
+                };
+                --time-picker-selection-font-size: 30px;
+                --time-picker-btn-select: {
+                    background-color: #fff;
+                    border-color: var(--body-color);
+                };
+                /*--adp-item-sm:{*/
+                /*max-width: 350px;*/
+                /*};*/
+                /*--adp-date-section-sm-width: 200px;*/
+                /*--adp-time-section-sm-width: 130px;*/
+                /*--df-day-layout: {};
+                */
+                --df-day-fontsize: 88px;
+
+                --paper-item-selected: {
+                    background-color: var(--primary)
+                };
+
+                /* TimePicker */
+                --time-picker-dropdown: {
+                    background-color: #fff;
+                    box-shadow: 0 0 20px rgba(0,0,0,.15);
+                    border-radius: 20px;
+                }
+            }
+
+            nm-order-item-counter {
+                --nm-qty-counter-field-width: 50px;
+                --nm-qty-counter-btn-bg: var(--primary);
+                --nm-qty-counter-btn-color: #fff;
+                --nm-qty-counter-btn-fontsize: 24px;
+                --nm-qty-counter-btn: {border-radius: 20px};
+                --nm-qty-counter-btn-hover: {
+                    background-color: var(--secondary);
+                };
+
+                --nm-qty-counter-field: {
+                    border: 1px solid var(--body-color);
+                    border-radius: 10px;
+                    color: var(--body-color);
+                    font-size: 1.250rem;
+                };
+                --nm-order-item-counter-item-total: {margin-left: 10px;}
+            }
+        </style>
+    </custom-style>
+    <link href="src/assets/css/bootstrap_critical.min.css" rel="stylesheet"/>
+    <link href="src/assets/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="src/assets/css/theme.min.css" rel="stylesheet"/>
+    <link href="src/assets/css/booking.css" rel="stylesheet"/>
+    <script>
+        // Globals
+        var APP = {};window.polymerSkipLoadingFontRoboto = true;
+    </script>
+    <script src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="/node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
+
+    <script type="module" src="/src/cr-vehicles-view.js" crossorigin></script>
+</head>
+<body>
+<main class="mx-auto container-lg">
+    <div id="bookingForm" class="booking-form">
+        <div class="container">
+            <div class="bg-primary" style="padding: 120px;">
+                <div class="mb-2 row">
+                    <div class="col-12 col-lg-6">
+                        <div class="location-col">
+                            <div class="text-sm-left form-group">
+                                <label class="font-weight-bold control-label">pickup</label>
+                                <select name="bookingForm.pickupLocationId" class="form-control custom-select input-styled" required>
+                                    <option value="">xx</option>
+                                </select>
+                            </div>
+                        </div>
+                        <datetime-picker
+                                id="dtp1"
+                                no-animation
+                                class=""
+                                time-interval="15"
+                                time="12:00"
+                                time-min="2"
+                                input-date
+                                max-date="2020-03-25"
+                                duration-min=""
+                                vertical-offset="50">
+                        </datetime-picker>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="location-col">
+                            <div class="text-sm-left form-group">
+                                <label class="font-weight-bold control-label">dropoff</label>
+                                <select name="bookingForm.dropoffLocationId" class="form-control custom-select input-styled" required>
+                                    <option value="">yy</option>
+                                </select>
+                            </div>
+                        </div>
+                        <datetime-picker
+                                id="dtp2"
+                                no-animation
+                                class=""
+                                time-interval="15"
+                                time="12:00"
+                                time-min="2"
+                                input-date
+                                max-date="2020-03-25"
+                                duration-min=""
+                                vertical-offset="50">
+                        </datetime-picker>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form action="https://httpbin.org/post" method="post" id="vehiclesForm">
+        <input type="text" name="vehicleId"/>
+        <input type="text" name="groupId"/>
+        <cr-vehicles
+            id="vehiclesList"
+            noimg-path="https://via.placeholder.com/320x192"
+            booking-days="2"
+            isListitem
+            filter-pane-class="filter-pane"
+            filter-pane-list-class="list-unstyled"
+            pager-class="layout horizontal wrap mb-1"
+            pager-per-page="12"
+            pager-per-page-options="[6,12,20]"
+            pager-range-size="4"
+            pager-current-page="0"
+            terms-link="http://www.google.com"
+            terms-target="_blank"
+            all-vehicles-common-text="<h4>Σας παρέχουμε <strong>ΔΩΡΕΑΝ</strong>:</h4><p>Ακυρώσεις, Αλλαγές, Ασφάλεια Κλοπής, Ασφάλεια ζημιών CDW</p>">
+
+            <h3 slot="aside-heading" class="pt-1 fs-4 hd-s2">ΦΙΛΤΡΑ ΑΝΑΖΗΤΗΣΗΣ</h3>
+            <div slot="aside-bottom">
+                [ banners' place ]
+            </div>
+            <div id="spinner" slot="spinner" class="spin"><div class="loader"></div></div>
+        </cr-vehicles>
+    </form>
+
+    <noscript>
+        Please enable JavaScript to view this website.
+    </noscript>
+</main>
+<!-- Import JSON data -->
+<script src="/src/data/vehicles_remote.js"></script>
+<script src="/src/data/filters_remote.js"></script>
+<script src="/src/data/verbals.js"></script>
+<script>
+    var host = document.querySelector('#vehiclesList'),
+        attributesOrdinal="doors|seats|baggage",
+        dtpNodes = document.querySelectorAll('datetime-picker'), i, l = dtpNodes.length;
+
+    attributesOrdinal = attributesOrdinal.split('|');
+
+    if(host) {
+        host.setAttribute('verbals', JSON.stringify(Verbals));
+        host.setAttribute('attributes-ordinal', JSON.stringify(attributesOrdinal));
+        var pagerOptions = host.getAttribute('pager-per-page-options');
+        pagerOptions && host.setAttribute('pager-per-page',pagerOptions[1]);
+    }
+
+    if(l > 0) {
+        for(i=0;i<l;i++) {
+            dtpNodes[i].setAttribute('verbals', JSON.stringify(Verbals.datetimepicker));
+        }
+    }
+    window.addEventListener('WebComponentsReady', function() {
+        console.log('WebComponentsReady: ',window.WebComponents.ready);
+
+        function toggleForm() {
+            // iron-collapse
+            document.getElementById('bookingFormPane').toggle();
+        }
+
+        const form = document.getElementById('vehiclesForm'),
+            vehicleInput = document.querySelector('input[name="vehicleId"]'), groupInput = document.querySelector('input[name="groupId"]');
+
+        this.addEventListener('submit-form', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            vehicleInput.value = e.detail.selected;
+            if (e.detail.selectedGroup) { groupInput.value = e.detail.selectedGroup; }
+            form.submit();
+        });
+    });
+
+    window.addEventListener('pager-change', function (e) {
+        window.scroll(0,0); // Compatibility unknown: IE, Samsung i, Edge mobile
+    });
+</script>
+<!-- Calendar scripts -->
+<script src="/node_modules/moment/moment.js"></script>
+<script src="/node_modules/moment/locale/el.js"></script>
+<script src="/src/elements/datetime-picker/datetimepicker.js"></script>
+</body>
+</html>
