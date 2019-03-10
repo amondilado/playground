@@ -5,23 +5,27 @@ import '../vehicle-item/fleet-item.js';
 class CrFleet extends CrList {
     static get contentTemplate() {
         return html`
-        <template is="dom-repeat" items="{{filtered}}" delay="300" initial-count="[[pagerPerPage]]" id="vehicleRepeater">
+        <template is="dom-repeat" items="{{sorted}}" delay="300" initial-count="[[pagerPerPage]]" id="vehicleRepeater">
             <fleet-item class="vehicle-item"
                 noimg-path="[[noimgPath]]"
+                is-listitem
                 id="vehicle-[[item.id]]"
                 item-id="[[item.id]]"
                 title="[[item.title]]"
                 group-id="[[item.groupId]]"
                 group-name="[[item.groupName]]"
                 available="[[item.available]]"
-                attributes="[[item.attributes]]"
                 attributes-ordinal="[[attributesOrdinal]]"
+                attributes="[[item.attributes]]"
                 type-id="[[item.filters.78.0]]"
                 images="[[item.images]]"
                 verbals="[[verbals]]"
+                price="[[item.price]]"
+                opened="{{smallDesktop}}"
                 terms-link="[[termsLink]]"
                 terms-target="[[termsTarget]]"
-                opened="{{smallDesktop}}">
+                terms-title="[[termsTitle]]"
+                all-vehicles-common-text="[[allVehiclesCommonText]]">
             </fleet-item>
         </template>
     `;}

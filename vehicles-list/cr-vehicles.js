@@ -5,7 +5,7 @@ import '../vehicle-item/vehicle-list-item.js';
 class CrVehicles extends CrList {
     static get contentTemplate() {
         return html`
-        <template is="dom-repeat" items="[[filtered]]" delay="300" initial-count="[[pagerPerPage]]" id="vehicleRepeater">
+        <template is="dom-repeat" items="[[sorted]]" delay="300" initial-count="[[pagerPerPage]]" id="vehicleRepeater">
             <vehicle-list-item class="mb-2 vehicle-item"
                 noimg-path="[[noimgPath]]"
                 is-listitem
@@ -31,6 +31,7 @@ class CrVehicles extends CrList {
                 verbals="[[verbals]]"
                 terms-link="[[termsLink]]"
                 terms-target="[[termsTarget]]"
+                terms-title="[[termsTitle]]"
                 opened="{{smallDesktop}}"
                 all-vehicles-common-text="[[allVehiclesCommonText]]">
             </vehicle-list-item>
