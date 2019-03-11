@@ -1,12 +1,16 @@
 import {html} from '@polymer/polymer/lib/utils/html-tag.js';
 import '@polymer/iron-flex-layout/iron-flex-layout-classes.js';
-import '../../../assets/shared-styles.js';
+import '../../../assets/gomega/shared-styles.js';
 
 const template = html`
 <dom-module id="cr-list-styles">
 <template>
     <style is="custom-style" include="shared-styles iron-flex iron-flex-alignment"></style>
     <style>
+    .vehicles-list-main{transition:opacity .2s ease-out 0s;will-change: opacity;}
+    .aside{z-index: 10}
+    .fade{opacity:.5}
+
     .display-items { width: 120px; }
     .display-item {
         background-color: var(--display-item-bg);
@@ -25,30 +29,29 @@ const template = html`
         color: var(--display-item-color-selected, #fff);
         pointer-events: none;
     }
-    
+
     .btn-default {
         position: relative;
-        padding-right: 60px;
+        @apply --filters-pane-btn;
     }
     .btn-default iron-icon {
         position: absolute;
-        right: .65rem;
         top: 50%;
-        margin-top: -20px;
-        height:38px;
-        width:38px;
+        @apply --filters-pane-btn-icon;
     }
-    
-    .vl-header {border-bottom: 1px solid var(--body-color,#666);margin-bottom: .5em;}
-    #toggleFilters{cursor:pointer;font-weight:800}
-    
+    .vl-header {margin-bottom: .5em;}
+    #toggleFilters{cursor:pointer;font-weight:800;@apply --filters-toggle-btn;}
+
     .filters-inner {
         padding: 1rem;
     }
     iron-collapse {display: none;}
     iron-collapse.iron-collapse-opened {display: block;}
-    
-    vehicle-list-item::before, fleet-item::before {
+
+    .vehicle-item {
+        @apply --vehicle-item;
+    }
+    .vehicle-item::before {
         content:'';
         border-radius: 20px;
         box-shadow: 0 2px 30px rgba(0,0,0,.15);
@@ -61,8 +64,8 @@ const template = html`
         transition: opacity .2ms ease-in-out 0s;
         z-index: -1;
     }
-    vehicle-list-item:hover::before, vehicle-list-item:focus::before,fleet-item:hover::before, fleet-item:focus::before { opacity: 1; }
-    
+    .vehicle-item::before, .vehicle-item:focus::before {opacity: 1;}
+
     @media (max-width: 767px) {
         .aside { position: static; }
         .iron-collapse[aria-hidden="true"] { display: none; }
@@ -76,19 +79,17 @@ const template = html`
             position: fixed;
             top: 0;
             z-index: 500;
-        }             
+        }
         .filters-inner {position: absolute;top: 0;overflow: auto;}
-    }     
-    
+    }
+
     @media (min-width: 768px) {
         .vehicles-list-container { flex-wrap: nowrap; }
-        .vehicles-list-main {flex: 0 0 70%; max-width: 70%; }
-        .aside { flex: 0 0 30%; max-width: 30%; order:-1; }
-        .filters-outer {max-width: 260px;}
+        .vehicles-list-main {flex:0 0 var(--list-main-width,70%); max-width:var(--list-main-width,70%); }
+        .aside { flex: 0 0 var(--list-aside-width,30%); max-width:var(--list-aside-width,30%); order:-1; }
+        .filters-outer {max-width:var(--list-aside-max-width,270px);}
         .filters-inner {
-            background-color: #fff;
-            border-radius: 20px;
-            margin-bottom: 20px;
+            @apply --filters-col;
         }
     }
     </style>
