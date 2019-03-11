@@ -39,6 +39,20 @@ export class CrList extends PolymerElement {
     static get template() {
         return html`
         <style include="cr-list-styles"></style>
+        <style>
+        .vehicles-list-main {
+          /* height: 100vh;
+          margin: 0;
+          display: flex;
+          flex-direction: column; */
+        }
+
+        iron-list {
+          /* add padding since the app-toolbar is fixed at the top */
+height: 100vh;
+          /* flex: 1 1 auto; */
+        }
+        </style>
 
         ${this.headerTemplate}
 
@@ -256,6 +270,12 @@ export class CrList extends PolymerElement {
             '_filteredChanged(filtered.*)'
         ]
     }
+// TODO call when collapse fires
+    getClassForItem(item, selected) {
+        // console.log('iron-list: ',this.$.vironList);
+        this.$.vironList.fire('iron-resize');
+        // return selected ? 'vehicle-item expanded' : 'vehicle-item';
+      }
 
     _spin() {
         var slotContent = this.$.spinner.assignedNodes()[0];
@@ -471,6 +491,12 @@ export class CrList extends PolymerElement {
         this.$.resetButton.addEventListener('click', this._resetFilters.bind(this), false);
         this.$.toggleFilters.addEventListener('click', this.toggle.bind(this), false);
         this.$.closeFilters.addEventListener('click', this.toggle.bind(this), false);
+
+        // WIP collapse
+        this.addEventListener('opened-changed', function() {
+            console.log('opened-changed');
+            this.$.vironList.fire('iron-resize');
+        });
 
         // Anytime our paged set changes, update the template
         this.addEventListener('pager-change', function (e) {
