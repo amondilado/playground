@@ -39,20 +39,6 @@ export class CrList extends PolymerElement {
     static get template() {
         return html`
         <style include="cr-list-styles"></style>
-        <style>
-        .vehicles-list-main {
-          /* height: 100vh;
-          margin: 0;
-          display: flex;
-          flex-direction: column; */
-        }
-
-        iron-list {
-          /* add padding since the app-toolbar is fixed at the top */
-height: 100vh;
-          /* flex: 1 1 auto; */
-        }
-        </style>
 
         ${this.headerTemplate}
 
@@ -60,6 +46,7 @@ height: 100vh;
             <array-filter items="{{filtered}}" filtered="{{sorted}}" sort="{{_sort(sortVal)}}" filter="_filter"></array-filter>
 
             <div id="vehiclesList" class="col col-12 mb-1 vehicles-list-main">
+                <div id="notifications"></div>
                 ${this.contentTemplate}
             </div>
 
@@ -125,7 +112,7 @@ height: 100vh;
             <nm-pagination id="pager"
                 per-page="{{pagerPerPage}}"
                 range-size="{{pagerRangeSize}}"
-                data="[[pagerData]]"
+                data="[[sorted]]"
                 current-page="{{pagerCurrentPage}}"
                 total-pages="{{pagerTotalPages}}"
                 pager-verbals="[[verbals.pagination]]">
@@ -166,10 +153,6 @@ height: 100vh;
             filters: {
                 type: Array,
                 value: function () { return [] }
-            },
-            filterKeys: {
-                type: Object,
-                value: function () { return {} }
             },
             sortBySelected: {
                 type: String,
@@ -270,12 +253,6 @@ height: 100vh;
             '_filteredChanged(filtered.*)'
         ]
     }
-// TODO call when collapse fires
-    getClassForItem(item, selected) {
-        // console.log('iron-list: ',this.$.vironList);
-        this.$.vironList.fire('iron-resize');
-        // return selected ? 'vehicle-item expanded' : 'vehicle-item';
-      }
 
     _spin() {
         var slotContent = this.$.spinner.assignedNodes()[0];
@@ -284,7 +261,7 @@ height: 100vh;
         }
     }
     _spinNot() {
-        this.set('loadComplete',!0);
+        this.set('loadComplete',!0); // TODO review this
         var slotContent = this.$.spinner.assignedNodes()[0];
         if(slotContent && slotContent.getAttribute('class')) {
             setTimeout(function(){
@@ -292,7 +269,6 @@ height: 100vh;
             },200);
         }
     }
-
     _fade() {
         var vl = this.$.vehiclesList.classList;
         vl.add('fade');
@@ -303,7 +279,6 @@ height: 100vh;
     }
 
     _pageChanged(page) {}
-
     _pagerIndexPage(i) {
         return i + 1;
     }
@@ -319,15 +294,16 @@ height: 100vh;
     _filteredChanged(p) {
         // console.log('_filteredChanged ',typeof this.filtered, 'len: ',this.filtered && this.filtered.length);
         if(typeof this.filtered !== 'undefined' && this.filtered.length > 0) {
-            console.log('_filteredChanged ',p);
+            // console.log('_filteredChanged ',p);
             this.set('itemsVisible', this.filtered.length);
             (!this.loadComplete) ? this._spinNot() : this._fade();
         }
     }
 
     _sortedChanged() {
-        if(typeof this.sorted !== 'undefined' && this.sorted.length > 0) {
-            console.log('_sortedChanged', this.sorted.length);
+        if(typeof this.sorted !== 'undefined') {
+            // console.log('_sortedChanged', this.sorted.length, 'this.loadComplete: ',this.loadComplete);
+            this.$.pager.dataChanged();
         }
     }
 
@@ -336,25 +312,18 @@ height: 100vh;
             // Get last value
             let len = this.get('selectedFilterValues').length;
 
-            console.log('_selectedFilterValuesChanged len', len);
+            // console.log('_selectedFilterValuesChanged len', len);
 
             // Toggle filters
             if (len > 0) {
                 this._toggleFilters(this.selectEvent.detail.item.filter, this.selectEvent);
-                console.log('this.selectedFilters ',this.selectedFilters);
+                // console.log('this.selectedFilters ',this.selectedFilters);
                 let arr = this._filter(this.selectedFilters);
+
+                (this.loadComplete && arr.length === 0) && alert(this.verbals.noFilterResults);
+
                 this.set('filtered', arr);
                 this.set('itemsTotal', arr.length);
-
-                // let arr = this._findMatchedItems(this.vehiclesSorted, this.filterKeys, this.selectedFilters);
-                //this.set('filtered', arr);
-                /* TODO Reset pagination
-                this.set('pagerData', arr);
-
-                // console.log('pagerData', this.pagerData, arr);
-                this.$.pager.dataChanged();
-                */
-
             } else if ((this.selectEvent.type === 'iron-deselect') && (len === 0)) {
                 this._resetFilters();
             }
@@ -362,10 +331,9 @@ height: 100vh;
     }
 
     _filter(item) {
-        console.log('_filter called items: ',item);
         if (item) {
-            let arr = this._findMatchedItems(this.vehicles, this.filterKeys, this.selectedFilters);
-            console.log('__filtered arr', arr.length);
+            let arr = this._findMatchedItems(this.vehicles, this.selectedFilters);
+            // console.log('__filtered arr', arr.length);
             return arr;
         }
     }
@@ -390,37 +358,30 @@ height: 100vh;
         }
     }
 
-    _findMatchedItems(array, filterKeys, filters) {
-        // TODO remove filter keys, get key from array
-        if (filters.length === 0) {
-            return;
-        }
-        let key, sf, it;
-        // console.log('selectedFilters: ', filters,' filterKeys: ',filterKeys,' vehicles copy: ',array.length);
-        var keyone = filters;
+    _findMatchedItems(array, filters) {
+        if (filters.length === 0) {return}
+        var item, key, sf, itkey;
 
+        // console.log('----\nfilters: ', filters,' vehicles copy: ',array.length);
         return array.filter(function (eachObj) { // array item to compare
-            // console.log('check item -> eachObj ', eachObj);
-
-            return filterKeys.every(eachKey => {
-                // console.log('filters[eachKey] ',filters[eachKey]);
-                var item =  eachObj.filters,
-                    filterValuesToMatch = filters[eachKey],
-                    itkey = item[eachKey];
-
-                if (!filterValuesToMatch.length || typeof itkey === 'undefined') {
-                    // console.log('EMPTY item[eachKey]: ',item[eachKey],' itkey: ',itkey);
-                    return true;
+            for(key in filters) {
+                item = eachObj.filters;
+                itkey = item[key];
+                sf = filters[key];
+                // console.log('\n----key: ',key,' item[key]: ',item[key],'| sf: ',sf);
+                //
+                if (sf.length === 0) {
+                    continue;
                 }
+                // console.log('check item -> eachObj.filters ', item,'\nitkey: ',itkey,' | key: ', key,' | filters: ',filters[key]);
 
-                // console.log('item: ',item,'\n--> eachKey: ',eachKey,' | filterValuesToMatch:', filterValuesToMatch,' | item[eachKey]: ',item[eachKey],' itkey: ',itkey);
-                // if some of filterValuesToMatch included in item[eachKey]
-                var isIncluded = filterValuesToMatch.some(function(eachFilterValue){
-                    return itkey.includes(eachFilterValue);
-                });
-                // console.log('isIncluded: ', isIncluded);
-                return isIncluded;
-            });
+                if (itkey === undefined || !itkey.some(function(v) {
+                    return sf.includes(v);
+                })) {
+                    return false;
+                }
+            }
+            return true
         });
     }
 
@@ -459,10 +420,9 @@ height: 100vh;
     }
 
     _resetFilters(e) {
-        for (let i = 0, len = this.filterKeys.length; i < len; i++) {
-            this.selectedFilters[this.filterKeys[i]] = [];
+        for (var k in this.selectedFilters) {
+            this.selectedFilters[k] = [];
         }
-        this.set('filtersSelected', []);
         this.set('filtered', this.vehicles);
         this.set('itemsTotal', this.filtered.length);
 
@@ -470,13 +430,13 @@ height: 100vh;
         /* TODO data binding to mixin pagination-helper-mixin.js
         this.set('pagerData', this.vehiclesSorted);
         this.set('itemsTotal', this.vehiclesSorted.length);
-        this.$.pager.dataChanged();
         */
+        this.$.pager.dataChanged();
+
         const children = this.shadowRoot.querySelectorAll('nm-filter-pane');
         for (let i = 0, len = children.length; i < len; i++) {
             children[i]._resetFilters();
         }
-        return this.vehicles;
     }
 
     toggle() {
@@ -492,25 +452,19 @@ height: 100vh;
         this.$.toggleFilters.addEventListener('click', this.toggle.bind(this), false);
         this.$.closeFilters.addEventListener('click', this.toggle.bind(this), false);
 
-        // WIP collapse
-        this.addEventListener('opened-changed', function() {
-            console.log('opened-changed');
-            this.$.vironList.fire('iron-resize');
-        });
-
         // Anytime our paged set changes, update the template
-        this.addEventListener('pager-change', function (e) {
-            console.log('pager-change ', this.filtered);
-            // this.set('filtered', e.detail.data);
+        this.addEventListener('pager-change', function(e) {
+            // console.log('pager-change e.detail.data: ',e.detail.data);
+            this.set('pagerData', e.detail.data);
         });
 
         this.addEventListener('pager-data', function (e) {
-            console.log('pager-data disabled');
+            // console.log('pager-data', e.detail.data);
+            this.set('pagerData', e.detail.data);
             // Original model paged. Update the current view
-            // this.set('filtered', e.detail.data);
-            // if(!paginationLoaded) {
-            //     paginationLoaded = true;
-            // }
+            if(!paginationLoaded) {
+                paginationLoaded = true;
+            }
         });
 
         this.set('vehicles', window.APP_VEHICLES);
@@ -527,7 +481,6 @@ height: 100vh;
                 for (let i = 0, len = this.filters.length; i < len; i++) {
                     this.selectedFilters[this.filters[i].id] = [];
                 }
-                this.set('filterKeys', Object.keys(this.selectedFilters));
             }
         });
     }

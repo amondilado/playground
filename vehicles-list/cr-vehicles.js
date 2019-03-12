@@ -1,16 +1,12 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
-import '@polymer/iron-list/iron-list.js';
 import {CrList} from './cr-list.js'
 import '../vehicle-item/vehicle-list-item.js';
 
 class CrVehicles extends CrList {
     static get contentTemplate() {
         return html`
-<iron-list items="[[sorted]]" scroll-target="document" as="item" id="vironList">
-<template>
-        <!--template is="dom-repeat" items="[[sorted]]" delay="300" initial-count="[[pagerPerPage]]" id="vehicleRepeater"-->
-        <div style="padding-bottom:10px">
-            <vehicle-list-item class$="[[getClassForItem(item, selected)]]"
+        <template is="dom-repeat" items="[[pagerData]]" delay="300" initial-count="[[pagerPerPage]]" id="vehicleRepeater">
+            <vehicle-list-item class="vehicle-item"
                 noimg-path="[[noimgPath]]"
                 is-listitem
                 id="vehicle-[[item.id]]"
@@ -39,9 +35,7 @@ class CrVehicles extends CrList {
                 opened="{{smallDesktop}}"
                 all-vehicles-common-text="[[allVehiclesCommonText]]">
             </vehicle-list-item>
-            </div>
         </template>
-        </iron-list>
     `;}
 }
 window.customElements.define('cr-vehicles', CrVehicles);
