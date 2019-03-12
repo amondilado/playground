@@ -7,9 +7,9 @@ const template = html`
 <template>
     <style is="custom-style" include="shared-styles iron-flex iron-flex-alignment"></style>
     <style>
-    .vehicles-list-main{transition:opacity .2s ease-out 0s;will-change: opacity;}
-    .aside{z-index: 10}
+    .vehicles-list-main{transition:opacity .2s ease-out 0s;will-change: opacity;min-height:100vh}
     .fade{opacity:.5}
+    #notifications p {padding-top:20px;font-size:18px;}
 
     .display-items { width: 120px; }
     .display-item {
