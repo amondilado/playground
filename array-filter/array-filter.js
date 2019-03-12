@@ -1,6 +1,6 @@
 import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
 import {Debouncer} from '@polymer/polymer/lib/utils/debounce.js';
-import {microTask} from '@polymer/polymer/lib/utils/async.js';
+// import {microTask} from '@polymer/polymer/lib/utils/async.js';
 import {timeOut} from '@polymer/polymer/lib/utils/async.js';
 
 /*
@@ -97,7 +97,7 @@ class ArrayFilter extends PolymerElement {
     }
 
     _sortChanged(val) {
-        console.log('_AF: _sortChanged');
+        // console.log('_AF: _sortChanged');
         var host = this.getRootNode().host;
         var sort = val;
         if(!sort) {
@@ -115,7 +115,7 @@ class ArrayFilter extends PolymerElement {
         }
     }
     _debounceFilter() {
-        console.log('_AF: _debounceFilter');
+        // console.log('_AF: _debounceFilter');
         this._filterDebouncer = Debouncer.debounce(
             this._filterDebouncer,
             timeOut.after(400),
@@ -129,7 +129,7 @@ class ArrayFilter extends PolymerElement {
         //     this._filter.bind(this));
 
     }
-    /**/
+
     _filterChanged(val) {
         console.log('_AF: _filterChanged val: ',val);
         var host = this.getRootNode().host;
