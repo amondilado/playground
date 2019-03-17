@@ -1,12 +1,3 @@
-// TODO
-// - Notifications
-// - check format validity
-// - range
-// - helper functions review, getMoment for time, group repeated date vars update
-// - disabledDays
-// - disabledDates
-//
-
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define(['moment'], function (moment) {
@@ -26,499 +17,564 @@
 
     // Helper functions
     var extend = function (defaults, options) {
-        var extended = {}, prop;
-        for (prop in defaults) {
-            if (Object.prototype.hasOwnProperty.call(defaults, prop)) {
-                extended[prop] = defaults[prop];
+            var extended = {}, prop;
+            for (prop in defaults) {
+                if (Object.prototype.hasOwnProperty.call(defaults, prop)) {
+                    extended[prop] = defaults[prop];
+                }
             }
-        }
-        for (prop in options) {
-            if (Object.prototype.hasOwnProperty.call(options, prop)) {
-                extended[prop] = options[prop];
+            for (prop in options) {
+                if (Object.prototype.hasOwnProperty.call(options, prop)) {
+                    extended[prop] = options[prop];
+                }
             }
-        }
-        return extended;
-    },
+            return extended;
+        },
 
-    compareDates = function(d1, d2) {
-        return d1 === d2
-    },
+        compareDates = function(d1, d2) {
+            return d1 === d2
+        },
 
-    getClosestInterval = function(interval) {
-        var coeff = 1000 * 60 * interval,
-            date = new Date(),
-            cl = new Date(Math.ceil(date / coeff) * coeff),
-		    rm = cl.getMinutes();
+        getClosestInterval = function(interval) {
+            var coeff = 1000 * 60 * interval,
+                date = new Date(),
+                cl = new Date(Math.ceil(date / coeff) * coeff), rm = cl.getMinutes();
+            // console.log('__Date: ', date,'\n momnet',moment().utcOffset(120).format('kk'), moment().utcOffset(120).format('mm'));
+            console.log('--- rm: ',rm);
+            return (rm === 0) ? '00' : ''+rm;
+        },
 
-            console.log('__Date: ', date,'\n cl:',cl,' rm:',rm);
-            return (rm === 0) ? '00' : ''+rm; // String coersion
-    },
-
-    // Calculate index based on time min and time interval
-    getTimeOffset = function(interval, min, i) {
-        if (interval > 1) {
-            var offset = (interval === 15) ? min * 4 : min * 2;
-            return i + offset;
-        } else {
-            return i + min;
-        }
-    },
-    // Set format for date-display wc
-    getFormat = function(d) {
-        var date = {
-            day: moment(d).format('D'),
-            dayw: moment(d).format('dddd'),
-            monthYear: moment(d).format('MMM YYYY')
-        };
-        // console.log('__FORMAT: ',date);
-        return date;
-    },
-
-    addMoment = function(d, n, f) {
-        return moment(d).add(n, 'days').format(f);
-    },
-
-    // Defautls
-    defaults = {
-        format: "YYYY-MM-DD",
-        inputDate: "",
-        dateEnd: "",
-        dateMin: "",
-        dateMax: "",
-        durationMin: "",
-        disabledDates: [],
-        timeInterval: "",
-        timeStart: "12:00",
-        timeEnd: "12:00",
-        timeMin: 1
-    };
-
-    // Constructor
-    var DateTimePicker = function(element) {
-        if (typeof element === 'undefined') return;
-
-        this.options = this.config(element);
-        console.log('Set this.options: ',this.options);
-
-        var self = this,
-            initState = !0,
-            outOfBounds,
-            datesEqual,
-            dateStart, dateEnd,
-            minDdate,
-            dp1, dp2,
-            today, isToday,
-            d2isMin,
-            time = {},
-            t1, t2, tmin,
-            t1_items, t2_items,
-            interval, timeIntervals;
-
-        /**
-         * private API
-         */
-        self.setDate = function(el, d) {
-            el.inputDate = d;
-            el.minDate = moment(d).subtract(1, "day").format(this.options.format);
-            el.enforceDateChange();
-        };
-
-        self.formatDates = function() {
-            // console.log('__FORMAT D');
-            element.formattedDate_1 = getFormat(dp1.date);
-            element.formattedDate_2 = getFormat(dp2.date);
-        };
-
-        self.enableTimeValues = function(arr) {
-            // console.log('__ENABLE T', arr.length);
-            for (let i = arr.length - 1; i >= 0; i--) {
+        // Calculate index based on time min and time interval
+        getTimeOffset = function(interval, min, i) {
+            if (interval > 1) {
+                var offset = (interval === 15) ? min * 4 : min * 2;
+                // console.log('__TIME OFFSET: i + off: ',i,' + ',offset, i + offset);
+                return i + offset;
+            } else {
+                // console.log('else return: ',i + min);
+                return i + min;
+            }
+        },
+        // Set format for date-display wc
+        getFormat = function(d) {
+            var date = {
+                day: moment(d).format('D'), // 1..31
+                dayw: moment(d).format('dddd'), // Sunday
+                monthYear: moment(d).format('MMMM YYYY') // July 2025
+            };
+            return date;
+        },
+        enableTimeValues = function(arr) {
+            for (var i = arr.length - 1; i >= 0; i--) {
                 arr[i].removeAttribute('disabled');
             }
-        };
+        },
 
-        self.updateDateComparisonValues = function() {
-            datesEqual = compareDates(dateStart, dateEnd);
-            isToday = compareDates(dateStart, today);
-            minDdate = addMoment(dateStart, this.options.durationMin, this.options.format);
-            d2isMin = minDdate === dateEnd;
+        addMoment = function(d, n, f) {
+            return moment(d).add(n, 'days').format(f);
+        },
 
-            console.log('__UPD DATE COMP: dateStart: ',dateStart,' dateEnd: ',dateEnd,'\nisToday: ',isToday,' datesEqual: ',datesEqual,' minDdate: ',minDdate, ' d2isMin: ',d2isMin);
-        };
+        // Defautls
+        defaults = {
+            format: "YYYY-MM-DD",
+            inputDate: "",
+            dateEnd: "",
+            dateMin: "",
+            dateMax: "",
+            durationMin: 0,
+            disabledDays: [],
+            disabledDates: [],
+            timeInterval: "",
+            timeStart: "12:00",
+            timeEnd: "12:00",
+            timeMin: 1,
+            hideToday: !1
+        },
 
-        self.outOfBounds = function(silent) {
-            var _d = dateEnd = addMoment(minDdate, 1, this.options.format);
+        // Constructor
+        DateTimePicker = function(elem1, elem2) {
+            'use strict';
 
-            if(!silent) {
-                alert("OUT OFF BOUNDS! Please select the next available date in your dropoff calendar.");
-                outOfBounds = !0;
-            }
+            var self = this,
+                opts,opts2,
+                initState = !0,
+                outOfBounds,
+                datesEqual,
+                dateStart, dateEnd,
+                minDdate,
+                dtp1, dtp2,
+                dp1, dp2,
+                today, isToday, dayForward = !1,
+                d2isMin,
+                time = {},
+                t1, t2,
+                t1_h_items, t1_m_items,
+                t2_h_items, t2_m_items,
+                interval, timeIntervals;
 
-            self.enableTimeValues(t2_items);
-            self.setDate(dp2, _d);
-            self.formatDates();
+            if (typeof elem1 !== 'undefined' && typeof elem2 !== 'undefined') {
+                dtp1 = elem1;
+                dtp2 = elem2;
+                opts = self.config(dtp1);
+                opts2 = self.config(dtp2);
+                opts.dateEnd = opts2.dateEnd;
+                opts.timeEnd = opts2.timeEnd;
+                this.opts = opts;
 
-            dateEnd = _d;
+            } else return;
 
-            self.updateDateComparisonValues();
-        };
+            console.log('opts',opts);
 
-        self.setDisabledDates = function(arr) {
-            for (var l = arr.length - 1; l >= 0; l--) {
-                arr[l] = arr[l].replace(/-/g, '/');
-            }
-            element.disableDates = arr; // TODO Pass an object or array in JSON format
-        };
+            /**
+             * private API
+             */
+            self.getMoment = function(d) {
+                var returnMoment, format = opts.format;
 
-        self.disablePastHours = function(idx, arr) {
-            // console.log('__DISABLE PastHours idx: ', idx,'arr.length: ',arr.length);
-
-            for (var j = arr.length - 1; 0 <= j; j--) {
-                if (j < idx) {
-                    arr[j].setAttribute("disabled", true);
+                if (d === undefined || d === null) {
+                    returnMoment = moment().utcOffset(120).format(format); // TODO should this use format? and locale?y
+                } else if (moment.isDate(d) || moment.isMoment(d)) {
+                    // If the date that is passed in is already a Date() or moment() object,
+                    // pass it directly to moment.
+                    returnMoment = moment(d).utcOffset(120).format(format);
                 } else {
-                    arr[j].removeAttribute("disabled");
+                    //returnMoment = moment(d, parseFormats, options.useStrict);
                 }
-            }
-        };
 
-        self.setTimeStart = function(idx) {
-            element.selectedTime_1 = idx;
-            t1._applySelection;
-        };
-
-        self.setTimeEnd = function(idx) {
-            element.selectedTime_2 = idx;
-            t2._applySelection;
-        };
-
-        self.getTimeNowData = function(min) {
-            var obj = {
-                h: moment().utcOffset(120).format('kk'),
-                m: moment().utcOffset(120).format('mm'),
-                min: {
-                    h: moment().utcOffset(120).add(min, 'hours').format('kk'), // 1..24
-                    m: moment().utcOffset(120).format('mm'),
-                }
+                return returnMoment;
             };
-            obj.value = obj.h+':'+obj.m;
-            obj.closest_m = getClosestInterval(interval);
-            obj.closest_h = (interval === 30 && obj.closest_m > 30 || interval === 15 && obj.closest_m > 45) ?
-                            parseInt(obj.min.h) + 1 : obj.min.h;
-            obj.closest = obj.closest_h+':'+obj.closest_m;
 
-            obj.index = timeIntervals.indexOf(obj.closest);
+            self.setDate = function(el, d) {
+                var min = (el === "dp1") ? d : minDdate;
+                el.inputDate = d;
+                el.minDate = moment(min).subtract(1, "day").format(opts.format);
+                el.enforceDateChange();
+            };
 
-            return obj;
-        };
-
-        self.initDates = function() {
-            today = moment().utcOffset(120).format(this.options.format);
-
-            if(!this.options.inputDate) {
-                this.options.inputDate = today;
-            }
-            if(!this.options.dateMin) {
-                this.options.dateMin = moment().subtract(1, 'days').format(this.options.format);
-            }
-            if(!this.options.dateEnd) {
-                this.options.dateEnd =  addMoment(this.options.inputDate, this.options.durationMin, this.options.format);
-            }
-
-            dp1.minDate = this.options.dateMin;
-            interval = this.options.timeInterval;
-            tmin = this.options.timeMin;
-            dateStart = this.options.inputDate;
-            dateEnd = this.options.dateEnd;
-
-            var minInDays = parseInt(tmin/24, 10),
-                recalcTmin = (minInDays) ? minInDays%24 : 1;
-
-            console.log('__INIT DATES:\ndp1.inputDate: ',dp1.inputDate,' | dp1.date: ',dp1.date,' | dp1.minDate: ',dp1.minDate,
-                '\ndp2.inputDate: ',dp2.inputDate,' | dp2.date: ',dp2.date,' | dp2.minDate: ',dp2.minDate,
-                '\nmin: ',tmin,' | minInDays: ',minInDays,' | recalcTmin: ',recalcTmin);
-
-            if(0 < minInDays && 0 < recalcTmin) {
-                tmin = recalcTmin;
-                isToday = !1;
-                console.log('__initDates NEW tmin: ',tmin);
-            }
-
-            // Calc dateStart
-            if(moment().isBefore(dp1.date)) {
-                dateStart = (0 < minInDays) ? addMoment(today, minInDays, this.options.format) : today;
-                self.setDate(dp1, dateStart);
-            }
-
-            // Calc dateEnd
-            if(moment(dateEnd).isBefore(minDdate)) {
-                dateEnd = minDdate;
-            }
-
-            self.setDate(dp2, dateEnd);
-            self.formatDates();
-            self.updateDateComparisonValues();
-
-            initState = !1;
-
-            console.log('__INIT DATES set:\ndp1.inputDate: ',dp1.inputDate,' | dp1.date: ',dp1.date,' | dp1.minDate: ',dp1.minDate,
-                '\ndp2.inputDate: ',dp2.inputDate,' | dp2.date: ',dp2.date,' | dp2.minDate: ',dp2.minDate,
-                '\ndateStart: ',dateStart,' | dateEnd: ',dateEnd);
-        };
-
-        self.initTime = function(o) {
-            console.log('__TIMEINX: ', o);
-            if(!~timeIntervals.indexOf(o.timeStart)) {
-                o.timeStart = defaults.timeStart;
-            }
-            if(!~timeIntervals.indexOf(o.timeEnd)) {
-                o.timeEnd = defaults.timeEnd;
-            }
-
-            time.now = self.getTimeNowData(tmin, interval);
-
-            // # Calc timeStart
-            time.start_v = (isToday && time.now.closest < o.timeStart) ? time.now.closest : o.timeStart;
-            time.start = timeIntervals.indexOf(time.start_v);
-
-            console.log('__>>> TIME set time.start: ', time.start, ' time.start_v: ',time.start_v);
-
-            // Check if timeStart + tmin is within 24h
-            var closest_h = parseInt(time.now.closest_h);
-
-            if(closest_h > 24 - tmin || closest_h < parseInt(time.now.h)) {
-                dateStart = addMoment(dateStart, 1, this.options.format);
-                self.setDate(dp1, dateStart);
-                self.outOfBounds('silent');
-                // Recalc time.start:
-                // - get current time index,
-                // - subtract it from array length,
-                // - get remainder
-                // - subtract remainder from tmin positions in array
-                var tnow_mc = getClosestInterval(interval),
-                    tnow = timeIntervals.indexOf(time.now.h+":"+tnow_mc),
-                    remainder = timeIntervals.length - tnow,
-                    // factor = (interval > 1) ? (interval === 15) ? 4 : 2 : 1,
-                    tminPos = getTimeOffset(interval,tmin,0);
-
-                time.start = tminPos - remainder;
-                // console.log('>>> remainder: ',remainder,' gTOff',getTimeOffset(interval,tmin,0),' | timeIntervals.length: ',timeIntervals.length);
-                self.disablePastHours(time.start, t1_items);
-                // console.log('__>>> TIME NEW date: ', dateStart, ' time: ',time, timeIntervals[time.start]);
-            }
-
-            // # Calc timeEnd
-            // if today or equal then recalc timeEnd
-            if(!d2isMin) {
-                time.end_v = o.timeEnd;
-                time.end = timeIntervals.indexOf(time.end_v);
-            } else {
-                if(!datesEqual) {
-                    time.end = time.start;
-                } else {
-                    // timeEnd index validation
-                    if(time.start >= timeIntervals.length) {
-                        var left = time.start - timeIntervals.length;
-                        time.end = getTimeOffset(interval,tmin,0) - left;
-                        self.outOfBounds('silent');
-                    }
-                    time.end = time.start;
-                }
-            }
-
-            self.setTimeStart(time.start);
-            self.setTimeEnd(time.end);
-            console.log('__TIME INIT: ', time);
-        };
-
-        self.validateTimeDuration = function() {
-            console.log('__VALIDATE new: ',time);
-
-            time.start = getTimeOffset(interval, tmin, time.start);
-            time.now = self.getTimeNowData(tmin, interval);
-
-            var isValid = time.start <= time.end;
-
-            if(isToday && time.start < time.now.index) {
-                // Update t1 < now
-                time.start = time.now.index;
-                time.start = getTimeOffset(interval, tmin, time.start);
-                self.setTimeStart(time.start);
-                // console.log('__VALIDATE update t1: ', time);
-                self.disablePastHours(time.start, t1_items);
-            }
-
-            if (d2isMin) {
-                if(time.start >= time.end) {
-                    if (time.start <= timeIntervals.length) {
-                        element.selectedTime_2 = null;
-                        time.end = time.start;
-                        self.setTimeEnd(time.end);
-                        // console.log('__VALIDATE update t2: ', time, timeIntervals[time.end]);
+            self.formatDates = function(el) {
+                if(el) {
+                    if (el === 'dtp1') {
+                        dtp1.formattedDate_1 = getFormat(dp1.date); 
                     } else {
-                        self.outOfBounds();
-                        var left = time.start - timeIntervals.length;
-                        time.end = getTimeOffset(interval,tmin,0) - left;
-                        self.setTimeEnd(time.end);
-                        // console.log('__VALIDATE update t2: ', time);
-                        self.disablePastHours(time.end, t2_items);
-                        return;
+                        dtp2.formattedDate_1 = getFormat(dp2.date);
+                    }
+                } else {
+                    dtp1.formattedDate_1 = getFormat(dp1.date);
+                    dtp2.formattedDate_1 = getFormat(dp2.date); 
+                }
+            };
+            //TODO
+            // self.computeRangeDates = function(d1, d2) {
+            //     console.log('__computeRangeDates: d1, d2:', d1, d2);
+            //     var range = [],
+            //         currentDate = addMoment(d1,1, opts.format);
+            //
+            //     while (currentDate < d2) {
+            //         // range.push(new Date (currentDate));
+            //         range.push(currentDate);
+            //         currentDate = addMoment(currentDate,1, opts.format);
+            //     }
+            //     console.log('range', range);
+            //     dtp1.rangeDates = range;
+            //     dtp2.rangeDates = range;
+            //     // return range;
+            // };
+
+            self.setDisabledDates = function(arr) {
+                for (var l = arr.length - 1; l >= 0; l--) {
+                    arr[l] = arr[l].replace(/-/g, '/');
+                }
+                dtp1.disableDates = arr; // TODO Pass an object or array in JSON format
+            };
+
+            self.disableStartPastHours = function(idx, arr) {
+                // console.log('idx: ',idx,' arr: ',arr);
+                var i = idx - 1;
+
+                do {
+                    arr[i].setAttribute("disabled", true);
+                    i--;
+                } while(0 <= i);
+            };
+
+            self.disablePastHours = function(idx, arr) {
+                // console.log('idx: ',idx,' arr: ',arr);
+                for (var j = arr.length - 1; 0 <= j; j--) {
+                    if (j < idx) {
+                        arr[j].setAttribute("disabled", true);
+                    } else {
+                        arr[j].removeAttribute("disabled");
                     }
                 }
-                self.disablePastHours(time.start, t2_items);
-            }
+            };
 
-            // console.log('__VALIDATE updated: ',time);
-        };
+            self.updateMetrics = function() {
+                datesEqual = compareDates(dateStart, dateEnd);
+                isToday = compareDates(dateStart, dp1.inputDate); // TODO today
+                minDdate = addMoment(dateStart, this.opts.durationMin, this.opts.format);
+                d2isMin = minDdate === dateEnd;
 
-        self.datetimepicker = function() {
-            var app = element,
-                o = this.options;
+                console.log('__UPD DATE COMP: dateStart: ',dateStart,' dateEnd: ',dateEnd,'\nisToday: ',isToday,' datesEqual: ',datesEqual,' minDdate: ',minDdate, ' d2isMin: ',d2isMin);
+            };
 
-            // console.log('__DATETIPI:\nelement ',app.nodeName, //  o ', o,' 'elem.$.time1',app.$.time1
-            dp1 = app.$.dp1;
-            dp2 = app.$.dp2;
+            self.setTimeStart = function(h, m) {
+                console.log('setTimeStart h: ',h,' m: ',m);
+                dtp1.selectedHour = h;
+                if(typeof m !== 'undefined') {
+                    dtp1.selectedMinutes = m; }
+            };
 
-            app.disableDays = []; // TODO
+            self.setTimeEnd = function(h, m) {
+                console.log('_setTimeEnd h: ',h,' m: ',m);
+                dtp2.selectedHour = h;
+                if(m) { dtp2.selectedMinutes = m }
+            };
 
-            // INIT DATES
-            self.initDates();
-
-            // INIT TIME
-            timeIntervals = app.intervalHours;
-            t1 = app.$.time1;
-            t2 = app.$.time2;
-            t1_items = app.getElements('plb_1');
-            t2_items = app.getElements('plb_2');
-
-            self.initTime(o);
-            console.log('INIT TIME EXIT');
-
-            if (isToday) {
-                self.disablePastHours(time.start, t1_items);
-            }
-            if (d2isMin || datesEqual) {
-                // console.log('--- > minDdate === dp2.date: ', minDdate === dp2.date);
-                self.disablePastHours(time.end, t2_items);
-            }
-
-            // EVENTS
-            // On Time change
-            app._onSelectedDateChanged = function(e) {
-                console.log('__DATE CH: outOfBounds: ',outOfBounds);
-                console.log('__DATE CH\ndp1.inputDate: ',dp1.inputDate,' | dp1.date: ',dp1.date,' | dp1.minDate: ',dp1.minDate);
-                console.log('dp2.inputDate: ',dp2.inputDate,' | dp2.date: ',dp2.date,' | dp2.minDate: ',dp2.minDate,
-                    '\ndateStart: ',dateStart,' dateEnd: ',dateEnd);
-
-                if(outOfBounds) {
-                    outOfBounds = !1; return;
+            self.setTimeNowData = function(min) {
+                console.log('---> time in: ',time);
+                var mc = getClosestInterval(interval), cm = moment().utcOffset(120).format('mm');
+                time.now_m = timeIntervals.indexOf(mc);
+                    // console.log('setTimeNowData tn: ', tn,' tnmin',tnmin,'\ntmin in date f: ', tnmin.format(opts.format));
+                time.now_h = parseInt(moment().utcOffset(120).add(min, 'hours').format('kk'));
+                // console.log('>>>> mc:', mc, ' cm: ',cm,' time.now_m: ',time.now_m, '>> time.now_h [', typeof time.now_h,'] timeIntervals ',timeIntervals, time);
+                if(interval === 30 && cm > 30 || interval === 15 && cm > 45) {
+                    time.now_h++
                 }
-
-                if(e.target.id === 'dp1') {
-                    dateStart = dp1.date;
-                } else { dateEnd = dp2.date}
-
-                // Update vals
-                self.updateDateComparisonValues();
-
-                if(e.target.id === 'dp1') {
-                    dp2.minDate =  moment(minDdate).subtract(1, "day").format(o.format);
-                }
-
-                if (isToday) {
-                    dp2.minDate = moment(minDdate).subtract(1, "day").format(o.format);
-                    dp2.enforceDateChange();
-                    self.disablePastHours(time.start, t1_items);
-                    self.validateTimeDuration();
-                } else {
-                    self.enableTimeValues(t1_items);
-                }
-                // start + min >= end
-                if(moment(minDdate).isSameOrAfter(dp2.date)) {
-                    // start + min >= end
-                    // - set end = start + min
-                    // - endMin = end - 1
-                    if (moment(minDdate).isAfter(dp2.date)) {
-                        // Update dateEnd
-                        self.setDate(dp2, minDdate);
+                if(initState) {
+                    var tn = moment().utcOffset(120), tnmin = moment().utcOffset(120).add(min, 'hours');
+                    dayForward = tn < tnmin || time.now_h > 23;
+                    if (time.now_h > 23) {
+                        time.now_h = time.now_h - 24;
+                        console.log('>>>> time.now_h ',time.now_h);
                     }
-                    // Disable end hours from time.start
-                    self.disablePastHours(time.start, t2_items);
-                    // Calc indexes
-                } else {
-                    self.enableTimeValues(t2_items);
+                    if (dayForward) {
+                        time.start_h = time.now_h;
+                        time.start_m =  time.now_m;
+                        return tnmin.format(opts.format);
+                    }
                 }
 
+                console.log('---> time dayForward: ',dayForward);
+                
+                console.log('---> time out: ',time);
+            };
+
+            self.outOfBounds = function(silent) {
+                var _d = dateEnd = addMoment(minDdate, 1, opts.format);
+
+                if(!silent) {
+                    alert("OUT OFF BOUNDS! Please select the next available date in your dropoff calendar.");
+                    outOfBounds = !0;
+                }
+
+                enableTimeValues(t2_h_items);
+                self.setDate(dp2, _d);
                 self.formatDates();
-                app._closeDialog();
-
-                self.updateDateComparisonValues();
-
-                console.log('__DATE CH\ndp1.inputDate: ',dp1.inputDate,' | dp1.date: ',dp1.date,' | dp1.minDate: ',dp1.minDate);
-                console.log('dp2.inputDate: ',dp2.inputDate,' | dp2.date: ',dp2.date,' | dp2.minDate: ',dp2.minDate,
-                    '\ndateStart: ',dateStart,' dateEnd: ',dateEnd,'minDdate: ',minDdate);
+                self.updateMetrics();
             };
 
-            // On Time change
-            app._onSelectedTime_1Change = function(_n, _o) {
-                time.start = _n;
-                console.log('>> t1 n o: ',_n, _o, 'time.start: ',time.start, ' d2isMin: ',d2isMin);
-                if (_n && d2isMin) {
-                    self.validateTimeDuration();
+            self.initDates = function() {
+                console.log('__INIT DATES:\ndp1.inputDate: ',dp1.inputDate,' | dp1.date: ',dp1.date,' | dp1.minDate: ',dp1.minDate,
+                    '\ndp2.inputDate: ',dp2.inputDate,' | dp2.date: ',dp2.date,' | dp2.minDate: ',dp2.minDate);
+
+                today = self.getMoment();
+
+                // Set current time
+                var dateIncremented = self.setTimeNowData(opts.timeMin),
+                    currentDate = (dateIncremented) ? dateIncremented : today;
+                console.log('initDates dateIncremented: ',dateIncremented, ' currentDate > dp1.date: ',moment(currentDate).isAfter(dp1.date));
+
+                if(dateIncremented) {
+                    opts.inputDate = dateIncremented;
                 }
+
+                if(!opts.inputDate || moment(currentDate).isAfter(dp1.date)) {
+                    opts.inputDate = dp1.inputDate = currentDate;
+                    dp1.enforceDateChange();
+                }
+                if(!opts.dateMin) {
+                    opts.dateMin = moment(currentDate).subtract(1, 'days').format(opts.format);
+                }
+
+                minDdate = addMoment(opts.inputDate, opts.durationMin, opts.format);
+                console.log('initDates minDdate: ',minDdate);
+
+                if(!opts.dateEnd || moment(opts.dateEnd).isBefore(minDdate)) {
+                    console.log('initDates opts.dateEnd: ',opts.dateEnd);
+                    opts.dateEnd = minDdate;
+                }
+
+                dp1.minDate = opts.dateMin;
+                dateStart = opts.inputDate;
+                dateEnd = opts.dateEnd;
+
+                // self.computeRangeDates(dp1.inputDate, dateEnd); TODO
+                self.setDate(dp2, dateEnd);
+                self.formatDates();
+                // Update date comparison values
+                self.updateMetrics();
+                initState = !1; // keep init here or in datetimepicker() ?                
+
+                console.log('__INIT DATES:\ndp1.inputDate: ',dp1.inputDate,' | dp1.date: ',dp1.date,' | dp1.minDate: ',dp1.minDate,
+                    '\ndp2.inputDate: ',dp2.inputDate,' | dp2.date: ',dp2.date,' | dp2.minDate: ',dp2.minDate);
             };
-            app._onSelectedTime_2Change = function(_n, _o) {
-                time.end = _n;
+
+            self.initTime = function(o) {
+                var min = o.timeMin,
+                    temp = o.timeStart.split(':'),
+                    isValid;
+
+                // // Set current time WIP
+                // self.setTimeNowData(min);
+                if(!dayForward) {
+                    time.start_h = parseInt(temp[0]);
+                    time.start_m = timeIntervals.indexOf(temp[1]);
+                }
+
+                // isValid = isToday && time.start_h >= time.now_h && time.start_m >= time.now_m 
+                //           || d2isMin && time.start_h < time.end_h && time.start_m < time.end_m;
+                if(isToday || d2isMin) {
+                    isValid = time.start_h >= time.now_h && time.start_m >= time.now_m && time.start_h < time.end_h && time.start_m < time.end_m;
+                } else {
+                    isValid = time.start_h <= time.end_h && time.start_m <= time.end_m;
+                }
+
+                console.log('__INIT TIME: ',time, 
+                    '\nisToday: ',isToday,' initTime isValid: ',isValid);
+
+                if(isToday && !isValid) {
+                    console.log('--isToday && !isValid');
+                    time.start_h = time.now_h;
+                    time.start_m =  time.now_m;
+                }
+                self.setTimeStart(time.start_h,time.start_m);
+
+                // if today or equal then recalc
+                if(d2isMin && !isValid) {
+                    time.end_h = 1 + parseInt(time.start_h);
+                    if (time.end_h > 23 ) {
+                        self.outOfBounds('silent');
+                        time.end_h = 0;
+                    }
+                    time.end_m = time.start_m;
+                } else {
+                    temp = o.timeEnd.split(':');
+                    time.end_h = parseInt(temp[0]);
+                    time.end_m = timeIntervals.indexOf(temp[1]);
+                }
+                self.setTimeEnd(time.end_h,time.end_m);
+
+                console.log('initTime ',time);
+            };
+
+            self.validateTimeDuration = function() {
+                var o = opts,
+                    min = parseInt(o.timeMin);
+
+                time.start_hmin = 1 + parseInt(time.start_h);
+
+                // Set current time
+                self.setTimeNowData(min);
+
+                var isValid = time.start_hmin <= time.end_h && 24 > time.start_h;
+
+                if(isToday && time.start_h < time.now_h) {
+                    // Update t1 < now
+                    time.start_h = time.now_h;
+                    time.start_hmin = getTimeOffset(interval, 1, time.start_h);
+                    console.log('time.start_hmin: ',time.start_hmin, ' time.start_h: ',time.start_h);
+                    self.setTimeStart(time.start_h);
+                    self.disableStartPastHours(time.start_h, t1_h_items);
+                }
+                // equal, isd2Min
+                if (d2isMin || datesEqual) {
+                    if(!isValid) {
+                        console.log('time.start_hmin',time.start_hmin,' time.end_h',time.end_h);
+                        dtp2.selectedHour = null;
+                        time.end_h = time.start_hmin;
+                        self.setTimeEnd(time.end_h);
+                        if (time.start_hmin >= 24) {
+                            self.outOfBounds('silent');
+                            return;
+                        }
+                    }
+
+                    self.disablePastHours((datesEqual) ? time.start_h+1 : time.start_h, t2_h_items);
+                }
+                console.log('__VALIDATE updated: ',time);
+            };
+
+            self.datetimepicker = function() {
+                var o = opts;
+                dp1 = dtp1.$.dp1;
+                dp2 = dtp2.$.dp1;
+
+                dtp1.disableDays = []; // TODO
+
+
+                // INIT TIME
+                timeIntervals = dtp1.hourIntervals;
+                interval = opts.timeInterval;
+                t1 = dtp1.$.time;
+                t2 = dtp2.$.time;
+                t1_h_items = t1.getTimeItems('hourItems');
+                t1_m_items = t1.getTimeItems('minItems');
+                t2_h_items = t2.getTimeItems('hourItems');
+                t2_m_items = t2.getTimeItems('minItems');
+                // console.log('t1: ',t1,'t1_h_items: ',t1_h_items);
+                // console.log('t2: ',t2,'\nt2_h_items: ',t2_h_items,'\nt2_m_items: ',t2_m_items);
+
+                // INIT DATES
+                self.initDates();
+                self.initTime(o);
+
+                if (isToday || dayForward) {
+                    dayForward = !1;
+                    console.log('dayForward: ',dayForward);
+                    if(time.start_h > 0) self.disableStartPastHours(time.start_h, t1_h_items);
+                }
+                if (d2isMin || datesEqual) {
+                    self.disablePastHours(time.end_h, t2_h_items);
+                }
+
+                function datesChanged(target) {
+                    console.log('__DATE CH: outOfBounds: ',outOfBounds,target,
+                        '\ndp1.inputDate: ',dp1.inputDate,' | dp1.date: ',dp1.date,' | dp1.minDate: ',dp1.minDate);
+                    console.log('dp2.inputDate: ',dp2.inputDate,' | dp2.date: ',dp2.date,' | dp2.minDate: ',dp2.minDate,
+                        '\ndateStart: ',dateStart,' dateEnd: ',dateEnd,'minDdate: ',minDdate);
+
+                    if(outOfBounds) {
+                        outOfBounds = !1; return;
+                    }
+
+                    // Update date comparison values
+                    self.updateMetrics();
+
+                    var validateTime = isToday || d2isMin;
+
+                    console.log('__DATE CH: time:', time);
+
+                    if(target === 'dp1') {
+                        dp2.minDate = moment(minDdate).subtract(1, "day").format(opts.format);
+                        console.log('__DATE CH dp1 chencged, undate dp2.minDate', dp2.minDate);
+                    }
+
+                    if (isToday) {
+                        dp2.minDate = moment(minDdate).subtract(1, "day").format(opts.format);
+                        dp2.enforceDateChange();
+                        time.start_h > 0 && self.disableStartPastHours(time.start_h, t1_h_items);
+                    } else {
+                        enableTimeValues(t1_h_items);
+                    }
+                    // TODO enable time values, not today && not d2ismin
+
+                    // start + min >= end
+                    if(moment(minDdate).isSameOrAfter(dp2.date)) {
+                        // start + min >= end
+                        // - set end = start + min
+                        // - endMin = end - 1
+                        if (moment(minDdate).isAfter(dp2.date)) {
+                            // Update dateEnd
+                            self.setDate(dp2, minDdate);
+                        }
+                        // Disable end hours from time.start
+                        self.disablePastHours((datesEqual) ? time.start_h+1 : time.start_h, t2_h_items);
+                        // Calc indexes
+                    } else {
+                        enableTimeValues(t2_h_items);
+                    }
+
+                    validateTime && self.validateTimeDuration();
+
+                    // Update date comparison values
+                    self.updateMetrics();
+
+                    console.log('__DATE CH\ndp1.inputDate: ',dp1.inputDate,' | dp1.date: ',dp1.date,' | dp1.minDate: ',dp1.minDate);
+                    console.log('dp2.inputDate: ',dp2.inputDate,' | dp2.date: ',dp2.date,' | dp2.minDate: ',dp2.minDate,'dateStart: ',dateStart,
+                        '\ndateEnd: ',dateEnd,'minDdate: ',minDdate, ' | d2isMin: ',d2isMin,' | datesEqual: ',datesEqual,' | validateTime: ',validateTime);
+                }
+
+                // EVENTS
+                // On Time change
+                dtp1._onSelectedDateChanged = function(e) {
+                    dateStart = dp1.date;
+                    datesChanged('dp1');
+                    self.formatDates('dtp1');
+                    dtp1._closeDialog();
+                };
+                dtp2._onSelectedDateChanged = function(e) {
+                    // console.log('_onSelectedDateChanged: ',e);
+                    dateEnd = dp2.date;
+                    datesChanged('dp2');
+                    self.formatDates('dtp2');
+                    dtp2._closeDialog();
+                };
+
+                // On Time change TODO event
+                t1._hourChanged = function(_n, _o) {
+                    time.start_h = _n;
+                    t1.setHour(_n);
+                    // console.log('>> t1 n o: ',_n, _o, 'time.start_h: ',time.start_h);
+                    if (_n) { // && d2isMin shall I add d1isMin ? //  || _n && isToday ?
+                        self.validateTimeDuration();
+                    }
+                };
+                t2._hourChanged = function(_n, _o) {
+                    time.end_h = _n;
+                    t2.setHour(_n);
+                };
             };
         };
-    };
 
-    /**
-     * public API
-     */
+    // public API
+    DateTimePicker.prototype.opts = null;
     DateTimePicker.prototype = {
-        // set options based on web compoent's attributes
-        config: function (element) {
-            // console.log('this.options', this.options);
-            var el = element, o = {};
+        // configure functionality, construct options from node attributes
+        config: function (elem) {
+            var el = elem, o = {}, input_date = el.getAttribute("input-date");
 
-            if(el.getAttribute('date-format')) // TODO check format validity in datetimepicker using app-datetimepicker functions
+            if(el.getAttribute('date-format')) // TODO check format validity
                 o.format = el.getAttribute('date-format');
             if(el.getAttribute('duration-min'))
                 o.durationMin = parseInt(el.getAttribute('duration-min'));
             if(el.getAttribute('disabled-dates'))
                 o.disabledDates = el.getAttribute('disabled-dates');
-            if(el.getAttribute("input-date"))
-                o.inputDate = el.getAttribute("input-date");
-            if(el.getAttribute("date-end"))
-                o.dateEnd = el.getAttribute("date-end");
+            if(el.getAttribute('disabled-days'))
+                o.disabledDays = el.getAttribute('disabled-days');
+            if(el.getAttribute('max-date'))
+                o.dateMax = el.getAttribute('max-date');
+
+            if(input_date) {
+                (elem.id === "dtp2") ? o.dateEnd = input_date : o.inputDate = input_date;
+            }
 
             // Time init values
             if(el.getAttribute('time-interval'))
                 o.timeInterval = parseInt(el.getAttribute('time-interval'));
-            if(el.getAttribute('time-min'))
+            if(el.getAttribute('time-min')) {
                 o.timeMin = parseInt(el.getAttribute('time-min'));
+                if (o.timeMin >= 23) o.timeMin = defaults.timeMin;
+            }
             if(el.getAttribute('time-start'))
                 o.timeStart = el.getAttribute('time-start');
             if(el.getAttribute('time-end'))
                 o.timeEnd = el.getAttribute('time-end');
 
-            if (!this.options) {
-                this.options = extend({}, defaults);
+            if (!this._o) { // always undefined
+                this._o = extend({}, defaults);
             }
 
-            return extend(this.options, o);
+            var opts = extend(this._o, o);
+            // console.log('__CONFIG opts: ',opts);
+            return opts;
         },
-        destroy: function() {
-            // If plugin isn't already initialized, stop
-            if (!this.options) return;
 
-	        // Remove init class for conditional CSS, or any other init functionality
-            document.documentElement.classList.remove('dtp-loaded');
+        getOpts: function() {
+            return this.opts;
         },
+
         init: function() {
             this.datetimepicker();
-            // Add class to HTML element to activate conditional CSS
-            document.documentElement.classList.add('dtp-loaded');
         }
     };
 
@@ -526,23 +582,30 @@
 }));
 
 // Config & init
-var app, picker,
-    wcReady = dtpReady = !1;
+var dtp1,dtp2, picker,
+    wcReady = !1, dtpReady = 0;
 
 document.addEventListener("DOMContentLoaded", function(e) {
-    app = document.querySelector('app-datetime-picker');
-    if(app) picker = new DateTimePicker(app);
+    dtp1 = document.getElementById('dtp1');
+    dtp2 = document.getElementById('dtp2');
+    if(dtp1 && dtp2) picker = new DateTimePicker(dtp1, dtp2);
 });
 function initPicker() {
-    dtpReady && wcReady && picker.init();
+    wcReady && (dtpReady === 2) && picker.init();
+    if (wcReady && (dtpReady === 2)) {
+        window.runTest()
+    }
 }
 window.addEventListener('WebComponentsReady', function() {
-    // console.log('WebComponentsReady, dtpReady: ', dtpReady);
     wcReady = !0;
+    console.log('WebComponentsReady, wcReady: ',wcReady,'dtpReady: ', dtpReady);
     initPicker()
 });
 window.addEventListener('datetime-picker-ready', function() {
-    // console.log("datetime-picker-ready");
-    dtpReady = !0;
+    dtpReady++;
+    console.log("datetime-picker-ready",dtpReady);
     initPicker()
+});
+window.addEventListener('time-picker-ready', function() {
+    console.log("time-picker-ready");
 });
