@@ -35,12 +35,14 @@
             return d1 === d2
         },
 
-        getClosestInterval = function(interval) {
+        getClosestInterval = function(interval, t) {
             var coeff = 1000 * 60 * interval,
-                date = new Date(), // '2019-03-30T22:10:00'
+                // t = moment('2019-03-25 23:58:58').utcOffset(120).format('YYYY-MM-DD HH:mm:ss')
+                date = new Date(t), // '2019-03-25T22:10:00' // TODO UTC!
                 cl = new Date(Math.ceil(date / coeff) * coeff), rm = cl.getMinutes();
-            // console.log('__Date: ', date,'\n momnet',moment().utcOffset(120).format('kk'), moment().utcOffset(120).format('mm'));
-            // console.log('--- rm: ',rm,' > cl: ', cl);
+            console.log('__Date: ', date,'\nnow GMT+0200:',t);
+            console.log('--- rm: ',rm,' > cl: ', cl);
+            // if(cl > date) dayForward = true; 
             return (rm === 0) ? '00' : ''+rm;
         },
 
@@ -105,7 +107,7 @@
                 dtp1, dtp2,
                 dp1, dp2,
                 today, dayForward = !1,
-                d1isMin, d2isMin, dmin,
+                d1isMin, d2isMin,
                 time = {},
                 tmin, t1, t2,
                 t1_h_items, t1_m_items,
@@ -120,11 +122,9 @@
                 opts.dateEnd = opts2.dateEnd;
                 opts.timeEnd = opts2.timeEnd;
                 this.opts = opts;
-                console.log('__OPTS: ',this.opts);
-
             } else return;
 
-            // console.log('opts',opts);
+            console.log('opts',opts);
 
             /**
              * private API
@@ -133,22 +133,21 @@
                 var returnMoment, format = opts.format;
 
                 if (d === undefined || d === null) {
-                    returnMoment = moment().utcOffset(120).format(format);
+                    returnMoment = moment().utcOffset(120).format(opts.format);
                 } else if (moment.isDate(d) || moment.isMoment(d)) {
                     // If the date that is passed in is already a Date() or moment() object,
                     // pass it directly to moment.
-                    returnMoment = moment(d).utcOffset(120).format(format);
+                    returnMoment = moment(d).utcOffset(120).format(opts.format);
                 } else {
-                    //returnMoment = moment(d, parseFormats, options.useStrict);
+                    returnMoment = moment(d, parseFormats, options.useStrict);
                 }
-
                 return returnMoment;
             };
 
             self.setDate = function(el, d) {
                 if(el === "dp2") { 
                     el = dp2; 
-                    el.minDate = minDdate;
+                    el.minDate = moment(minDdate).subtract(1, 'days').format(opts.format);
                 }
                 el.inputDate = d;
                 el.enforceDateChange();
@@ -203,55 +202,50 @@
 
             self.updateMetrics = function() {
                 datesEqual = compareDates(dateStart, dateEnd);
-                d1isMin = compareDates(dateStart, dmin);
-                minDdate = addMoment(dateStart, this.opts.durationMin, this.opts.format);
+                d1isMin = compareDates(dateStart, today); // TOday is now + minhours > minDate
+                minDdate = addMoment(dateStart, opts.durationMin, opts.format);
                 d2isMin = minDdate === dateEnd;
-                console.log('__UPD DATE COMP: dateStart: ',dateStart,' dateEnd: ',dateEnd,'\nd1isMin: ',d1isMin,' datesEqual: ',datesEqual,' minDdate: ',minDdate, ' d2isMin: ',d2isMin);
+                console.log('__UPD DATE COMP: dateStart: ',dateStart,' dateEnd: ',dateEnd,'\nd1isMin: ',d1isMin,' datesEqual: ',datesEqual,' minDdate: ',minDdate, ' d2isMin: ',d2isMin,
+                    '\nopts.dateMin: ',opts.dateMin, '| today:', today);
             };
 
             self.setTimeStart = function(h, m) {
-                console.log('setTimeStart h: ',h,' m: ',m);
+                console.log('__SET TimeStart h: ',h,' m: ',m);
                 dtp1.selectedHour = h;
                 if(typeof m !== 'undefined') {
                     dtp1.selectedMinutes = m; }
             };
 
             self.setTimeEnd = function(h, m) {
-                console.log('_setTimeEnd h: ',h,' m: ',m);
+                // console.log('_setTimeEnd h: ',h,' m: ',m);
                 dtp2.selectedHour = h;
                 if(m) { dtp2.selectedMinutes = m }
             };
 
             self.setTimeNowData = function(min) {
                 // console.log('---> time in: ',time);
-                var mc = getClosestInterval(interval), 
-                    cm = moment().utcOffset(120).format('mm'), res = !0;
+                var ntz = moment().utcOffset(120).format('YYYY-MM-DD HH:mm:ss'), // TEST: '2019-03-25 23:58:58', f: 
+                    mc = getClosestInterval(interval, ntz), 
+                    cm = moment(ntz).format('mm'), res = !0;
                 time.now_m = timeIntervals.indexOf(mc);
                 // console.log('setTimeNowData tn: ', tn,' tnmin',tnmin,'\ntmin in date f: ', tnmin.format(opts.format));
-                time.now_h = parseInt(moment().utcOffset(120).add(min, 'hours').format('kk'));
-                // console.log('>>>> mc:', mc, ' cm: ',cm,' time.now_m: ',time.now_m, '>> time.now_h [', typeof time.now_h,'] timeIntervals ',timeIntervals, time);
+                time.now_h = parseInt(moment(ntz).add(min, 'hours').format('kk'));
+                console.log('>>>> mc:', mc, ' cm: ',cm, ' | ntz: ',ntz,'\ntime.now_m: ',time.now_m, '>> time.now_h [', typeof time.now_h,'] timeIntervals ',timeIntervals, JSON.stringify(time),
+                    '\n---> initState && dp1.date === today: ',initState, dp1.date, today);
                 if(interval === 30 && cm > 30 || interval === 15 && cm > 45) {
-                    time.now_h++
-                }
-
-                if(initState && d1isMin) {
-                    var tn = moment().utcOffset(120),
-                        tnmin = moment().utcOffset(120).add(opts.timeMin, 'hours');
-                    dayForward = tn.format(opts.format) < tnmin.format(opts.format) || time.now_h > 23;
-                    res = (time.now_h === 24) ? addMoment(today, 1, opts.format) : tnmin.format(opts.format);
-                    console.log('---> time dayForward: ',dayForward,'\n > tn: ',tn.format(opts.format),' < tnmin', tnmin.format(opts.format));
-                    if (dayForward) {
-                        time.start_h = time.now_h;
-                        time.start_m =  time.now_m;
-                    }
+                    time.now_h++;
                 }
 
                 if (time.now_h > 23) {
                     time.now_h = time.now_h - 24;
                     console.log('>>>> time.now_h > 23 ',time.now_h);
+                    // Cover time > 23:[lastIntervalValue] && < 24:00
+                    if(time.now_h === 0) {
+                        today = addMoment(today,1,opts.format);
+                        dayForward = !0; 
+                        console.log('---> time.now_h === 0',time.now_h,' => dayForward: ',dayForward,' | NEW TODAY: ',today);
+                    }
                 }
-
-                return dayForward && res;
             };
 
             self.outOfBounds = function(silent) {
@@ -275,11 +269,14 @@
             self.initDates = function() {
                 tmin = opts.timeMin;
                 console.log('__INIT DATES in:\ndp1.inputDate: ',dp1.inputDate,' | dp1.date: ',dp1.date,' | dp1.minDate: ',dp1.minDate,
-                    '\ndp2.inputDate: ',dp2.inputDate,' | dp2.date: ',dp2.date,' | dp2.minDate: ',dp2.minDate,'\n >>>> tmin: ',tmin);
+                    '\ndp2.inputDate: ',dp2.inputDate,' | dp2.date: ',dp2.date,' | dp2.minDate: ',dp2.minDate);
                 
-
-                today = moment().add(tmin, "hours").format(opts.format);
-
+                today = moment().utcOffset(120).add(tmin, "hours").format(opts.format);
+                console.log('---> today init: ',today);
+                self.setTimeNowData(opts.timeMin);
+                // Cover time > 23:[lastIntervalValue] && < 24:00
+                dayForward = moment(today).isAfter(self.getMoment());
+                console.log('--- > today, dayForward:',today, dayForward);
                 
                 if(!opts.dateMin || opts.dateMin < today) {
                     opts.dateMin = today;
@@ -290,20 +287,16 @@
                     opts.inputDate = today;
                     // console.log('>>> opts.inputDate < today ',opts.inputDate, today)
                 }
-                dateStart = opts.inputDate;
+                dateStart = (dayForward) ? today : opts.inputDate;
 
                 if(!opts.dateEnd) {
                     opts.dateEnd = addMoment(opts.inputDate, opts.durationMin, opts.format);
                 }
                 // Set current time
                 dp1.minDate = opts.dateMin;
-                dmin = addMoment(opts.inputDate, opts.durationMin, opts.format);
-                console.log('__INIT DATES: dmin: ',dmin,' | today: ',today);
 
-                self.setTimeNowData(opts.timeMin);
+                // self.setTimeNowData(opts.timeMin);
                 dateEnd = opts.dateEnd;
-
-                console.log('____ dp1.inputDate: ',dp1.inputDate);    
 
                 minDdate = addMoment(dateStart, opts.durationMin, opts.format);
 
@@ -324,33 +317,38 @@
             };
 
             self.initTime = function(o) {
-                var temp = o.timeStart.split(':'),
+                var _ts = o.timeStart.split(':'), 
+                    idx,
                     isValid;
+                
+                // Check for valid input
+                time.start_h = (24 > _ts[0]) 
+                                ? ((dayForward || d1isMin) && _ts[0] < time.now_h)
+                                    ? time.now_h
+                                    :  parseInt(_ts[0])
+                                : defaults.timeStart.split(':')[0];
 
-                // dayForward = true when tmin >> dateStart + 1
-                if(!dayForward) {
-                    time.start_h = parseInt(temp[0]);
-                    time.start_m = timeIntervals.indexOf(temp[1]);
-                    console.log('--> !dayForward time: ',time);
-                }
+                idx = timeIntervals.indexOf(_ts[1]);
+                time.start_m = ~idx ? idx : 0;
 
-                // isValid = d1isMin && time.start_h >= time.now_h && time.start_m >= time.now_m
-                //           || d2isMin && time.start_h < time.end_h && time.start_m < time.end_m;
-                // if(d1isMin || d2isMin) { // datemin or equal
-                //     isValid = time.start_h >= time.now_h && time.start_m >= time.now_m && time.start_h < time.end_h && time.start_m < time.end_m;
-                // } else {
-                //     isValid = time.start_h <= time.end_h && time.start_m <= time.end_m;
-                // }
+                console.log(
+                //     '_ts: ',_ts,
+                //     '24 > _ts[0]: ',24 > _ts[0]
+                'time to validate...', JSON.stringify(time),
+                '\nd1isMin && d2isMin: ',d1isMin && d2isMin,
+                '\ntime.start_h >= time.now_h && time.start_m >= time.now_m: ',time.start_h >= time.now_h && time.start_m >= time.now_m,
+                '\ntime.start_h < time.end_h && time.start_m <= time.end_m: ',time.start_h < time.end_h && time.start_m <= time.end_m
+                    );
+
                 isValid = (d1isMin)
-                    ? (d2isMin)
-                        ? time.start_h >= time.now_h && time.start_m >= time.now_m && time.start_h < time.end_h && time.start_m < time.end_m
+                    ? (d2isMin) // ds min
+                        ? time.start_h >= time.now_h && time.start_m >= time.now_m && time.start_h < time.end_h && time.start_m <= time.end_m
                         : time.start_h >= time.now_h && time.start_m >= time.now_m // TODO keep minutes?
                     : (d2isMin)
                         ? time.start_h <= time.end_h && time.start_m <= time.end_m // What if h pass but m FAIL?
                         : !0;
 
-                console.log('__INIT TIME: ',time,
-                    '\nd1isMin: ',d1isMin,' initTime isValid: ',isValid);
+                console.log('d1isMin: ',d1isMin,' | isValid: ',isValid);
 
                 if(d1isMin && !isValid) {
                     console.log('--> d1isMin && !isValid');
@@ -361,6 +359,7 @@
 
                 // if today or equal then recalc
                 if(d2isMin && !isValid) {
+                    console.log('--> d2isMin && !isValid');
                     time.end_h = 1 + parseInt(time.start_h);
                     console.log('time.end_h ', time.end_h);
                     if (time.end_h > 23 ) {
@@ -369,12 +368,12 @@
                     }
                     time.end_m = time.start_m;
                 } else {
-                    temp = o.timeEnd.split(':');
-                    time.end_h = parseInt(temp[0]);
-                    time.end_m = timeIntervals.indexOf(temp[1]);
+                    _ts = o.timeEnd.split(':');
+                    time.end_h = parseInt(_ts[0]);
+                    time.end_m = timeIntervals.indexOf(_ts[1]);
                 }
                 self.setTimeEnd(time.end_h,time.end_m);
-                console.log('initTime ',time);
+                console.log('initTime ',JSON.stringify(time));
             };
 
             self.validateTimeDuration = function() {
@@ -401,7 +400,8 @@
                         // console.log('time.start_hmin',time.start_hmin,' time.end_h',time.end_h);
                         dtp2.selectedHour = null;
                         time.end_h = time.start_hmin;
-                        self.setTimeEnd(time.end_h);
+                        time.end_m = time.start_m;
+                        self.setTimeEnd(time.end_h, time.end_m);
                         if (time.start_hmin > 23) {
                             self.outOfBounds('silent');
                             return;
@@ -538,7 +538,7 @@
     DateTimePicker.prototype = {
         // configure functionality, construct options from node attributes
         config: function (elem) {
-            var el = elem, o = {}, input_date = el.getAttribute("input-date");
+            var el = elem, o = {}, input_date = el.getAttribute("input-date"), time = el.getAttribute('time');
 
             if(el.getAttribute('date-format')) // TODO check format validity
                 o.format = el.getAttribute('date-format');
@@ -560,12 +560,11 @@
                 o.timeInterval = parseInt(el.getAttribute('time-interval'));
             if(el.getAttribute('time-min')) {
                 o.timeMin = parseInt(el.getAttribute('time-min'));
-                (o.timeMin) ? o.timeMin : o.timeMin = defaults.timeMin;
+                if(isNaN(o.timeMin)) o.timeMin = defaults.timeMin;
             }
-            if(el.getAttribute('time-start'))
-                o.timeStart = el.getAttribute('time-start');
-            if(el.getAttribute('time-end'))
-                o.timeEnd = el.getAttribute('time-end');
+            if(time) {
+                (elem.id === "dtp2") ? o.timeEnd = time : o.timeStart = time;
+            }
 
             if (!this._o) { // always undefined
                 this._o = extend({}, defaults);

@@ -87,7 +87,6 @@ var runTest = function () {
     });
 
     // # TEST tmin + tnow > 23 Date & Time validation
-    // NOTE: To test this add an appropriate value to time-min attribute
     QUnit.module( "tmin + tmin > 23 Dates Valid" );
     QUnit.test("Dates Valid", function( assert ) {
         assert.equal(gte(dp1.date, today), true, "d1 > today");
@@ -98,18 +97,23 @@ var runTest = function () {
         assert.equal(regTime.test(t2_v), true, "t2_v valid 24:59 format");
         assert.ok(lt(t1_v,"24"), true, "t1_v < 24");
         assert.ok(lt(t2_v,"24"), true, "t2_v < 24");
+
         // ~24
         var checkBounds = function() {
+            setTimeStart(23, 1);            
             t1_v = t1.hourVal+":"+t1.minutesVal;
             t2_v = t2.hourVal+":"+t2.minutesVal;
-            console.log('t1_v, t2_v, nowMin ',t1_v, t2_v, nowMin);
-            
+            // console.log('TEST:\nt1_v, t2_v, nowMin ',t1_v, t2_v, nowMin);        
             return t1_v >= nowMin
         };
+
         var checkTime2Min = function() {
             return (dp1.date === dp2.date) ? t2_v > t1_v : !0;
         };
         assert.equal(gte(t1_v,nowMin), true, "t1_v >= nowMin");
+        // assert.equal(checkBounds(), true, "setTimeStart = (23, 1)");
         assert.equal(checkTime2Min(), true, "checkTime2Min: t2_v > t1_v");
     });
+
+    // # Respect valid input
 };
