@@ -3,155 +3,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <title>app-datetime-picker</title>
+    <title>JavaScript 30 - Wes Bos courses</title>
     <meta name="description" content="nmelements description">
-    <base href="/">
-
-    <!-- See https://goo.gl/OOhYW5 -->
-    <link rel="manifest" href="/manifest.json">
-    <script>
-        window.polymerSkipLoadingFontRoboto = true;
-    </script>
-    <style>body{background: #f2f2f2}</style>
-    <custom-style>
-        <style>
-            html {
-                --primary: #47daff;
-                --secondary: #d81b60;
-                --tertiary: #036;
-                --grid-gutter-form: 5px;
-                --grid-gutter: 30px;
-                --grid-gutter-half: 15px;
-                --text-muted: #999;
-                --bp-mb-1: .5rem;
-
-                /* Vehicles list */
-                --filters-selected-color: var(--secondary);
-                --display-item-bg: #e0e0e0;
-                --display-item-color: #333;
-                --display-item-bg-selected: var(--tertiary);
-                --display-item-color-selected: #fff;
-                --display-item-padding-y: 5px;
-                --pager-bg-color: #f2f2f2;
-                --pager-color: var(--primary);
-                --pager-icon-size: 17px;
-                --pager-selected-bg-color: var(--tertiary);
-                --filters-pane-bg: #fff;
-                --qty-counter-width: 120px;
-            }
-
-            iron-image {
-                --iron-image-width: 100%;
-            }
-            app-datetime-picker {
-                display: flex;
-                flex-flow: row wrap;
-
-                --adp-backdrop-bg: rgba(255,0,0,.5);
-
-                --app-datepicker: {
-                    border-radius: 25px;
-                };
-
-                --adp-navigator-bg: #036;
-                --adp-navigator-color: #fff;
-                --app-datepicker-icon-button-color: #fff;
-                --adp-weekdays-bg: var(--primary);
-                --app-datepicker-weekdays-color: #fff;
-                --app-datepicker-date-hover-background-color: #cfd8dc;
-                --app-datepicker-date-hover-color: #333;
-                --app-datepicker-selected-day-bg: var(--secondary);
-                --app-datepicker-selected-day-color: #fff;
-
-                --adp-btn-bg: #fff;
-                --adp-btn-color: #78909c;
-                --adp-btn: {
-                    border-radius: 25px;
-                    margin-bottom: 10px;
-                    padding: .715em 1.429em;
-                };
-
-                --app-datepicker-days-of-week: {
-                    padding-top: 5px;
-                    padding-bottom: 5px;
-                };
-
-                /* Date display */
-                --df-ic-calendar-width: 29px;
-                --df-day-fontsize: 60px;
-
-                /* Time */
-                --paper-item-selected: {
-                    background-color: #47daff;
-                }
-            }
-        </style>
-    </custom-style>
-    <link href="src/assets/gomega/theme.css" rel="stylesheet"/>
-    <script src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-
-    <!-- Paper listbox animations polyfill-->
-    <script src="/node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
-    <!-- Datepicker -->
-    <script type="module" src="/src/elements/app-datepicker/app-datetime-picker.js" crossorigin></script>
-    <script>var APP = {}</script>
+    <link href="src/assets/css/theme.css" rel="stylesheet"/>
 </head>
 <body>
-    <!--  Consider removing date-end
-    ="2019-02-05"
-
--->
 <div class="container">
-    <app-datetime-picker
-            no-animation
-            class="row"
-            time-interval="15"
-            time-start="13:30"
-            time-end="16:30"
-            time-min="2"
-            input-date="2019-03-05"
-            min-date
-            max-date="2020-03-25"
-            duration-min="2"
-            paper-menu-btn-hoffset="50">
-        <label slot="label-date-start">PICK-UP DATE & TIME</label>
-        <label slot="label-date-end">DROPOFF DATE & TIME</label>
-    </app-datetime-picker>
+    <h1>JavaScript 30 - Wes Bos courses</h1>
+    <ol class="nav">
+        <li class="nav-item"><a href="./js30/js-drum-kit.html" class="nav-link">Course title</a></li>
+    </ol>
 </div>
-
-<!-- Calendar scripts -->
-<script src="/node_modules/moment/moment.js"></script>
-<script src="/node_modules/moment/locale/el.js"></script>
-<!-- <script src="/src/elements/app-datepicker/datetimepicker.js"></script> -->
-
-<script>
-    // var picker,wcReady,dtpReady;
-    //
-    // document.addEventListener("DOMContentLoaded", function(event) {
-    //     picker = new
-    //     DateTimePicker(document.querySelector("app-datetime-picker"));
-    //
-    // // DateTimePicker(document.querySelector("app-datetime-picker"), {timeMin: '3'});
-    // // picker.init();
-    //     // console.log('CALL getFormat: ', picker.getFormat());
-    // });
-    //
-    //
-    // // // TODO Set listeners to one and the same handler
-    // window.addEventListener('WebComponentsReady', function() {
-    //     console.log('WebComponentsReady, dtpReady: ', dtpReady);
-    //     wcReady = !0;
-    //     if (dtpReady && wcReady) {
-    //         picker.init();
-    //     }
-    // });
-    // window.addEventListener('datetime-picker-ready', function() {
-    //     console.log("datetime-picker-ready");
-    //     dtpReady = !0;
-    //     if (dtpReady && wcReady) {
-    //         picker.init();
-    //     }
-    // });
-</script>
 </body>
 </html>

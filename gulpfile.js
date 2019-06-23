@@ -1,52 +1,40 @@
 'use strict';
 
-var gulp = require('gulp');
-var sass = require('gulp-sass'),
+const { task, series, parallel, src, dest, watch } = require('gulp'),
+    del = require('del'),
+    rename = require('gulp-rename'),
+    sass = require('gulp-sass'),
     sourcemaps = require('gulp-sourcemaps'),
     cssmin = require('gulp-cssmin'),
-    rename = require('gulp-rename');
-var browserSync = require('browser-sync').create();
+    autoprefixer = require('gulp-autoprefixer'),
+    assetsPath = './assets/',
+    buildPath = './build/';
 
-var assetsPath = 'assets/';
+function css(done) {
+    src(assetsPath + 'scss/**/*.scss')
+        .pipe(sourcemaps.init())
+        .pipe(sass().on('error', sass.logError))
+        .pipe(sourcemaps.write())
+        .pipe(dest(buildPath + 'css/'))
+        ;
+    done();
+}
 
-gulp.task('sass', function () {
-  return gulp.src(assetsPath + 'scss/**/*.scss')
-    .pipe(sourcemaps.init())
-    .pipe(sass().on('error', sass.logError))
-    .pipe(sourcemaps.write())
-    .pipe(gulp.dest(assetsPath + 'css'))
-    .pipe(browserSync.reload({
-      stream: true
-    }))
-    ;
-});
+function build(done) {
+    src(buildPath + 'css/**/*.css')
+        .pipe(cssmin())
+        .pipe(rename({ suffix: '.min' }))
+        .pipe(dest(buildPath + 'css/'))
+    done();
+}
 
-// gulp.task('sass', function () {
-//  return gulp.src('./assets/**/*.scss')
-//   .pipe(sourcemaps.init())
-//   .pipe(sass().on('error', sass.logError))
-//   .pipe(sourcemaps.write())
-//   .pipe(gulp.dest('./assets/css'));
-// });
+function watchFiles() {
+    watch(assetsPath + 'scss/**/*.scss', sassTask);
+}
 
-gulp.task('browserSync', function() {
-  browserSync.init({
-    server: {
-      baseDir: './'
-    },
-  })
-})
+// const build = task('build');
 
-gulp.task('watch', ['browserSync', 'sass'], function (){
-  gulp.watch(assetsPath + 'scss/**/*.scss', ['sass']);
-  gulp.watch('*.html', browserSync.reload);
-});
-
-gulp.task('default', ['sass', 'watch']);
-
-gulp.task('build', function() {
-  return gulp.src(assetsPath + 'css/**/*.css')
-    .pipe(cssmin())
-    .pipe(rename({ suffix: '.min' }))
-    .pipe(gulp.dest(assetsPath + 'css'))
-});
+task('css', css);
+task('build', build);
+// exports.build = build;
+exports.default = watchFiles;

@@ -1,2 +1,2 @@
 # playground
-code samples
+coding exercises
