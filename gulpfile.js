@@ -16,11 +16,11 @@ function css(done) {
         .pipe(sass().on('error', sass.logError))
         .pipe(sourcemaps.write())
         .pipe(dest(buildPath + 'css/'))
-        ;
+    ;
     done();
 }
 
-function build(done) {
+function cssbuild(done) {
     src(buildPath + 'css/**/*.css')
         .pipe(cssmin())
         .pipe(rename({ suffix: '.min' }))
@@ -29,12 +29,10 @@ function build(done) {
 }
 
 function watchFiles() {
-    watch(assetsPath + 'scss/**/*.scss', sassTask);
+    watch(assetsPath + 'scss/**/*.scss', css);
 }
 
-// const build = task('build');
-
 task('css', css);
-task('build', build);
-// exports.build = build;
+task('cssbuild', cssbuild);
+exports.build = series(css, cssbuild);
 exports.default = watchFiles;

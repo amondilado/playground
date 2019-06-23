@@ -4,14 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Course Title</title>
+    <title>JavaScript Drum Kit</title>
     <link href="../build/css/theme.css" rel="stylesheet"/>
+    <style>
+        .btn {
+            margin: 4px 8px;
+            padding: 1rem;
+            transition: transform .07s ease-in-out;
+        }
+        .playing {
+            background-color: yellow;
+            transform: scale(1.1);
+            color: blue;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
+    <div class="text-center">
         <h1>Course Title</h1>
-
+        <ul class="list-unstyled">
+            <li class="btn" data-key="65">A</li>
+            <li class="btn" data-key="66">B</li>
+            <li class="btn" data-key="67">C</li>
+        </ul>
     </div>
-    <script src="./js/js-course-file.js"></script>
+
+    <audio data-key="65" src="../build/sound/boom.wav"></audio>
+    <audio data-key="66" src="../build/sound/clap.wav"></audio>
+    <audio data-key="67" src="../build/sound/hihat.wav"></audio>
+
+    <script src="./js/js-drum-kit.js"></script>
 </body>
 </html>
+<!-- http://www.wavsource.com/snds_2018-06-03_5106726768923853/music/big_bopper_hello_baby.wav -->
