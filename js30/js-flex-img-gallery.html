@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Flex panels image gallery</title>
+    <style>
+        html {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font: normal 2rem/1.65 'Ubuntu Mono', Arial,sans-serif;
+        }
+
+        *,
+        *:before,
+        *:after {
+            box-sizing: inherit;
+        }
+
+        .sr-only {
+            position: absolute;
+            height: 1px;
+            width: 1px;
+            overflow: hidden;
+            padding: 0;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+        }
+        /* .panel1 { background-image:url(https://source.unsplash.com/gYl-UtwNg_I/1500x1500); }
+        .panel2 { background-image:url(https://source.unsplash.com/rFKUFzjPYiQ/1500x1500); }
+        .panel3 { background-image:url(https://images.unsplash.com/photo-1465188162913-8fb5709d6d57?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&cs=tinysrgb&w=1500&h=1500&fit=crop&s=967e8a713a4e395260793fc8c802901d); }
+        .panel4 { background-image:url(https://source.unsplash.com/ITjiVXcwVng/1500x1500); }
+        .panel5 { background-image:url(https://source.unsplash.com/3MNzGlQM7qs/1500x1500); } */
+
+        .panels {
+            display: flex;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .panel {
+            background-image: linear-gradient(rgba(2, 171, 132, .6), rgba(74, 0, 71, .6)), url('../assets/img/1500_1.jpeg');
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            transition: flex-grow .4s ease-out 0s;
+        }
+        .panel > p {
+            margin: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1 0 auto;
+        }
+
+        .panel > p:first-child,
+        .panel > p:last-child {
+            transition: transform .4s ease-out 0s;
+        }
+
+        .panel > p:first-child {
+            transform: translateY(-100%);
+        }
+
+        .panel > p:last-child {
+            transform: translateY(100%);
+        }
+
+        .panel.open {
+            flex: 5;
+        }
+
+        .panel.open-active>p:first-child,
+        .panel.open-active>p:last-child {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1 class="sr-only">Flex panels image gallery</h1>
+
+        <div class="panels">
+            <div class="panel panel1">
+                <p>Hey</p>
+                <p>Let's</p>
+                <p>Dance</p>
+            </div>
+            <div class="panel panel2">
+                <p>Give</p>
+                <p>Take</p>
+                <p>Receive</p>
+            </div>
+            <div class="panel panel3">
+                <p>Experience</p>
+                <p>It</p>
+                <p>Today</p>
+            </div>
+            <div class="panel panel4">
+                <p>Give</p>
+                <p>All</p>
+                <p>You can</p>
+            </div>
+            <div class="panel panel5">
+                <p>Life</p>
+                <p>In</p>
+                <p>Motion</p>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', (e) => {
+        const panels = document.querySelectorAll('.panel');
+
+        function toggleOpen() {
+          this.classList.toggle('open');
+        }
+
+        function toggleActive(e) {
+            const isFlex = ~e.propertyName.indexOf('flex');
+            if (isFlex && e.target.classList.contains('open')) {
+                e.target.classList.add('open-active');
+            } else if (isFlex) {
+                e.target.classList.remove('open-active');
+            }
+        }
+        panels.forEach(panel => panel.addEventListener('click', toggleOpen));
+        panels.forEach(panel => panel.addEventListener('transitionend', toggleActive));
+    })
+    </script>
+</body>
+
+</html>
