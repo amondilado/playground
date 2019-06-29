@@ -16,33 +16,36 @@ function findMatches(wordToMatch, cities) {
     });
 }
 
+
 function displayMatches() {
-    const frag = document.createDocumentFragment(),
-          data = findMatches(this.value, cities);
-
-    // v 1 Using documentFragment
-    data.map(entry => {
-        const li = document.createElement('li'),
-              regex = new RegExp(this.value, 'gi'),
-              cityName = entry.city.replace(regex, `<span class="hl">${this.value}</span>`),
-              stateName = entry.state.replace(regex, `<span class="hl">${this.value}</span>`);
-        li.innerHTML = `<span class="name">${cityName}, ${stateName}</span> <span class="population">${numberWithCommas(entry.population)}</span>`;
-        frag.appendChild(li);
-    });
-
+    // console.time('Function #1');
+    const data = findMatches(this.value, cities);
     resetDisplay();
-    this.value && suggestions.appendChild(frag);
+    // v 1 Using documentFragment
+    // const frag = document.createDocumentFragment();
+    // data.map(entry => {
+    //     const li = document.createElement('li'),
+    //           regex = new RegExp(this.value, 'gi'),
+    //           cityName = entry.city.replace(regex, `<span class="hl">${this.value}</span>`),
+    //           stateName = entry.state.replace(regex, `<span class="hl">${this.value}</span>`);
+    //     li.innerHTML = `<span class="name">${cityName}, ${stateName}</span> <span class="population">${numberWithCommas(entry.population)}</span>`;
+    //     frag.appendChild(li);
+    // });
+    // this.value && suggestions.appendChild(frag);
 
-    // v2 Injecting string to innerHTML
-    // const html = data.map(entry => {
-    //     regex = new RegExp(this.value, 'gi'),
-    //     cityName = entry.city.replace(regex, `<span class="hl">${this.value}</span>`),
-    //     stateName = entry.city.replace(regex, `<span class="hl">${this.value}</span>`)
-    //     return `
-    //     <li><span class="name">${cityName}, ${stateName}</span> <span class="population">${entry.population}</span></li>
-    //     `;
-    // }).join('');
-    // suggestions.innerHTML = html;
+    // v2 Injecting string to innerHTML fastest
+    const html = data.map(entry => {
+        regex = new RegExp(this.value, 'gi'),
+        cityName = entry.city.replace(regex, `<span class="hl">${this.value}</span>`),
+        stateName = entry.city.replace(regex, `<span class="hl">${this.value}</span>`)
+        return `
+        <li><span class="name">${cityName}, ${stateName}</span> <span class="population">${entry.population}</span></li>
+        `;
+    }).join('');
+    if (this.value) {
+        suggestions.innerHTML = html;
+    }
+    // console.timeEnd('Function #1')
 }
 
 function resetDisplay() {
