@@ -1,0 +1,23 @@
+.inbox {
+  max-width: 400px;
+  margin: 50px auto;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0 0 0 10px rgba(0,0,0,0.1);
+}
+.form-group {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #F1F1F1;
+  padding: .85em;
+}
+.form-group:last-child {
+  border-bottom: 0;
+}
+input:checked + label {
+  background: #F9F9F9;
+  text-decoration: line-through;
+}
+input[type="checkbox"] {
+  margin: 1em;
+}

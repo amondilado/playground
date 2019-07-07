@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SVG animations</title>
+    <link href="../build/css/theme.css" rel="stylesheet"/>
+</head>
+<body>
+    <h1>SVG animations</h1>
+    <div class="box">
+        <div class="flex-center text-center hvr-item">
+            <svg class="xhvr-svg"
+            width="200px" height="200px" viewBox="0 0 200 200"
+            stroke="none"
+            stroke-width="1" fill="none" fill-rule="evenodd">
+            </svg>
+            <a href="#" class="stretched-link">Link</a>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', (e) => {
+        // create new path append it to existing svg elem
+        const svgElem = document.querySelector('svg');
+        // <circle cx="25" cy="75" r="20" stroke="red" fill="transparent" stroke-width="5"/>
+        //Create a path in SVG's namespace
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+        circle.setAttribute("id", "circ");
+        circle.setAttribute("class", "hvr-path");
+        circle.setAttribute("cx", "100");
+        circle.setAttribute("cy", "100");
+        circle.setAttribute("r", "10");
+        circle.style.stroke = "#000"; //Set stroke colour
+        circle.style.strokeWidth = "3px"; //Set stroke width
+
+        const poly = document.createElementNS("http://www.w3.org/2000/svg", 'polygon'); //Create a path in SVG's namespace
+        poly.setAttribute("id", "poly");
+        poly.setAttribute("class", "hvr-path");
+        poly.setAttribute("points", "100,110 100,90 120,110");
+        poly.style.stroke = "#000"; //Set stroke colour
+        poly.style.strokeWidth = "3px"; //Set stroke width
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", 'rect'); //Create a path in SVG's namespace
+        rect.setAttribute("id", "rect");
+        rect.setAttribute("class", "hvr-path");
+        rect.setAttribute("x", "100");
+        rect.setAttribute("y", "100");
+        rect.setAttribute("width", "14");
+        rect.setAttribute("height", "14");
+        rect.style.stroke = "#000"; //Set stroke colour
+        rect.style.strokeWidth = "3px"; //Set stroke width
+
+        // append
+        svgElem.appendChild(circle);
+        svgElem.appendChild(poly);
+        svgElem.appendChild(rect);
+    });
+    </script>
+</body>
+</html>

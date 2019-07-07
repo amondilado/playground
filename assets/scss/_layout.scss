@@ -2,3 +2,10 @@
     display: grid;
     grid-gap: 15px;
 }
+.flex, .flex-center {
+    display: flex;
+}
+.flex-center {
+    justify-content: center;
+    align-items: center;
+}

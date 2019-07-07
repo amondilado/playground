@@ -1,0 +1,68 @@
+.box {
+    margin: 100px;
+}
+
+.hvr-path {
+    // opacity: 0;
+    transition: transform 0.3s ease-in 0s, opacity 0.2s ease-out 0s;
+}
+
+.hvr-item {
+    background: pink;
+    border-radius: 100%;
+    width: 200px;
+    height: 200px;
+    position: relative;
+
+    &::after,
+    &::before {
+        content: '';
+        background: linear-gradient(-135deg, currentColor 50%, transparent 50%) 50% / 50% 50% no-repeat;
+        position: absolute;
+        top: 0;
+        display: block;
+        border: 1px solid #000;
+        height: 60px;
+        width: 60px;
+        animation: spin 4s linear 0s infinite normal;
+    }
+
+    &.active,
+    &:hover {
+        .hvr-path {
+            opacity: 1;
+        }
+
+        #circ {
+            transform: translate3d(-20%,-50%,0);
+        }
+
+        #poly {
+            transform: translate3d(20%,50%,0);
+        }
+
+        #rect {
+            transform: translate3d(40%,-20%,0);
+        }
+    }
+}
+
+.hvr-svg {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    opacity: 0;
+    transition: transform 1s ease-in 0s, opacity 0.3s ease-out 0s;
+}
+@keyframes spin {
+    0% {
+        transform: rotate(360deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
