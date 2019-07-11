@@ -1,3 +1,7 @@
+input, select {
+    border: 1px solid #999;
+    padding: .5em;
+}
 .inbox {
   max-width: 400px;
   margin: 50px auto;
@@ -20,4 +24,16 @@ input:checked + label {
 }
 input[type="checkbox"] {
   margin: 1em;
+}
+.error, .has-error {
+    color: #f33;
+}
+.error.error-msg {
+    display: block;
+    font-size: .9em;
+    font-style: normal;
+    margin-top: 6px;
+}
+.has-success input {
+    border-color: lightgreen;
 }

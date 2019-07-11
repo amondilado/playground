@@ -21,7 +21,7 @@
 
     // v1 Using splice
     // comments.splice(indexToRemove,1);
-    console.table(comments);
+    // console.table(comments);
 
     // v2 Using slice and spread operator
     const newComments = [
