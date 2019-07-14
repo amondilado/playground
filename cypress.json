@@ -1,0 +1,14 @@
+{
+    "env": {
+        "baseUrl": "http://bioaroma.nmlabs.gr/"
+    },
+    "chromeWebSecurity": false,
+    "modifyObstructiveCode": false,
+    "blacklistHosts": [
+        "www.googletagmanager.com",
+        "s7.addthis.com",
+        "v1.addthisedge.com",
+        "v1.addthis.com",
+        "cdn.sstatic.net"
+    ]
+}

@@ -1,8 +1,5 @@
 $(function(){
-    console.log('ola');
-
-
-	$.validator.setDefaults({
+    $.validator.setDefaults({
 		submitHandler: function() {
 			alert("submitted!");
 		}
