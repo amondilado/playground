@@ -1,0 +1,39 @@
+.tag-cloud {
+    font-size: 13px;
+    color: #717171;
+    list-style-type: none;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-flow: row wrap;
+    margin: 3vw auto;
+    padding: 0;
+    width: 80vw;
+    max-width: 500px;
+}
+.tag-cloud-item {
+    padding: 6px;
+}
+[data-priority="1"] {
+    color: blueviolet;
+}
+[data-priority="2"] {
+    color: green;
+}
+/* Weights */
+[data-weight="2"] {
+    font-size: 15px;
+}
+[data-weight="3"] {
+    font-size: 17px;
+}
+[data-weight="4"] {
+    font-size: 20px;
+}
+[data-weight="5"] {
+    font-size: 23px;
+}
+[data-weight="6"] {
+    font-size: 26px;
+}

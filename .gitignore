@@ -4,3 +4,4 @@ build/sound/
 build/vendor/
 assets/img/
 cypress/integration/examples/
+.idea
