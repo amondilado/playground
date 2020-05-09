@@ -1,4 +1,4 @@
-// Check empty or udefined
+// Check empty or undefined
 function ensure(input) {
   try {
     return (input === void(0) || !input || v.length === 0 || Object.keys(input).length === 0 && input.constructor === Object) ? false : input;
