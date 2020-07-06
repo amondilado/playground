@@ -1,9 +1,8 @@
 (function(){
     // START: CODE
-  function contentLoadedHandler() {
+  function initApp() {
     const navToggle = document.getElementById('navToggle');
     const appNav = document.getElementById('appNav');
-    const appTitle = document.querySelector('h1');
     const dataContainer = document.getElementById('pageContent');
 
     // Fetch content
@@ -42,7 +41,7 @@
       data.map(item => {
         rowsHtml += '<tr>';
         if(actionEnabled) {
-          rowsHtml += `<td><span class="checkbox"></span></td>`;
+          rowsHtml += `<td width="50"><span class="checkbox"></span></td>`;
         }
 
         for (const property in item) {
@@ -56,10 +55,9 @@
       dataContainer.innerHTML = '';
       dataContainer.appendChild(tableWrapper);
 
-      actionEnabled && dataContainer.addEventListener('click', clickHandler);
-      window.setTimeout(()=> {
+      // window.setTimeout(()=> {
       dataContainer.classList.remove('loader-bar');
-      }, 2000);
+      // }, 2000);
     }
 
     appNav.addEventListener('click', function(e) {
@@ -67,14 +65,10 @@
         const target = e.target;
         const view = target.href && target.href.split('#')[1];
         const fetchUrl = e.target.dataset['url'];
-        const hasAction = !!e.target.dataset['action'];
+        const action = e.target.dataset['action'];
+        const button = document.querySelector('#mainHeading button');
 
         if (!target.href || !view) return;
-
-        dataContainer.removeEventListener('click', clickHandler);
-        dataContainer.classList.add('loader-bar');
-
-        appTitle.innerHTML = target.innerText;
 
         switch(view) {
           case 'customers':
@@ -86,7 +80,21 @@
           default: return false;
         }
 
-        fetchUrl && fetchData(fetchUrl, createTabularData, hasAction);
+        dataContainer.classList.add('loader-bar');
+        fetchUrl && fetchData(fetchUrl, createTabularData, !!action);
+        document.querySelector('h1').innerHTML = target.innerText;
+
+        if (action) {
+          button.removeAttribute('disabled');
+          button.removeAttribute('hidden');
+          button.textContent = action === "add" ? "Add New" : "Delete";
+          dataContainer.addEventListener('click', clickHandler);
+        } else {
+          button.setAttribute('disabled', 'disabled');
+          button.setAttribute('hidden', 'hidden');
+          button.textContent = "";
+          dataContainer.removeEventListener('click', clickHandler);
+        }
 
       } catch(error) {
         console.error(error.message);
@@ -113,7 +121,16 @@
 
   }
 
-  document.addEventListener("DOMContentLoaded", contentLoadedHandler);
+  // Alternative to DOMContentLoaded event
+  document.addEventListener('readystatechange', event => {
+    if (event.target.readyState === 'interactive') {
+      document.body.classList.add('loading');
+    }
+    else if (event.target.readyState === 'complete') {
+      initApp();
+      document.body.removeAttribute('class');
+    }
+  });
 
     // END: CODE
 }());

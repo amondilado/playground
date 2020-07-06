@@ -16,15 +16,15 @@
   <!-- https://html.com/tags/header/ -->
   <header class="app-header">
     <div class="header">
-      <a href="#home" class="app-logo" aria-label="Navigate to homepage"><img src="logo.svg" alt="logo" class="img-fluid"></a>
+      <a href="#home" class="app-logo" aria-label="Navigate to homepage"><img src="logo.svg" alt="logo" class="logo-img"></a>
       <button class="hidden-desktop nav-toggle" aria-label="Toggle navigation" aria-controls="appNav" id="navToggle">
         <span class="nav-toggle-icon"></span>
       </button>
       <nav id="appNav" class="app-nav">
         <ul class="strong nav">
           <li class="nav-item"><a class="nav-link" href="#customers" data-url="customers.json">CUSTOMERS</a></li>
-          <li class="nav-item"><a class="nav-link" href="#products" data-url="products.json" data-action="enabled">PRODUCTS</a></li>
-          <li class="nav-item"><a class="nav-link" href="#users" data-url="users.json">USERS</a></li>
+          <li class="nav-item"><a class="nav-link" href="#products" data-url="products.json" data-action="delete">PRODUCTS</a></li>
+          <li class="nav-item"><a class="nav-link" href="#users" data-url="users.json" data-action="add">USERS</a></li>
         </ul>
       </nav>
     </div>
@@ -32,8 +32,11 @@
 
   <main id="appMain" class="app-main">
     <div class="heading-holder">
-      <div class="main-heading">
+      <div class="heading-main" id="mainHeading">
+        <div class="heading-content">
         <h1>Welcome</h1>
+        <button class="button" type="button" disabled hidden></button>
+        </div>
       </div>
     </div>
     <div class="page-content" id="pageContent">

@@ -41,6 +41,12 @@ button {
   user-select: none;
   vertical-align: middle;
 }
+button[hidden] {
+  display: none;
+}
+.button {
+  border-radius: 1.75em;
+}
 a {
   color: var(--black);
   text-decoration: none;
@@ -62,10 +68,6 @@ table {
   border-collapse: collapse;
 }
 /* Utils */
-.img-fluid {
-  max-width: 100%;
-  height: auto;
-}
 .strong {
   font-weight: 700;
 }
@@ -87,8 +89,13 @@ table {
   padding: 8px 20px;
 }
 .app-logo {
-  line-height: 1;
-  width: 38px;
+  font-size: 2.875rem;
+  line-height: 0.5;
+}
+.logo-img {
+  display: inline-block;
+  height: 1em;
+  width: 1em;
 }
 /* Navigation */
 .nav-toggle {
@@ -114,7 +121,7 @@ table {
 
 /* # Loaders */
 /* Loader circle */
-@keyframes load4 {
+@keyframes loading {
   0%,
   100% {
     box-shadow: 0 -3em 0 0.2em, 2em -2em 0 0em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 0;
@@ -141,20 +148,35 @@ table {
     box-shadow: 0em -3em 0 0, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0, -2em -2em 0 0.2em;
   }
 }
-.loader {
+.loading {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+}
+.loading::after {
+  content: '';
+  border-radius: 50%;
   color: var(--blue);
-  font-size: 20px;
-  margin: 100px auto;
+  display: inline-block;
+  font-size: 8px;
+  margin: 0 auto 8em auto;
   width: 1em;
   height: 1em;
-  border-radius: 50%;
   position: relative;
-  text-indent: -9999em;
-  animation: load4 1.3s infinite linear;
+  animation: loading 1.3s infinite linear;
   transform: translateZ(0);
 }
+.loading .app-container {
+  opacity: 0;
+  transition: opacity .3s ease-out 0s;
+}
+
 /* Loader bar */
-@keyframes placeHolderShimmer {
+@keyframes loadingBar {
   0% {
     background-position: 0 0;
   }
@@ -182,11 +204,7 @@ table {
   z-index: 1;
 }
 .loader-bar::after {
-  animation-duration: 4s;
-  animation-fill-mode: forwards;
-  animation-iteration-count: infinite;
-  animation-name: placeHolderShimmer;
-  animation-timing-function: linear;
+  animation: 4s linear infinite forwards loadingBar;
   background: #fff;
   background: linear-gradient(to right, var(--lightblue) 8%, var(--blue) 18%, var(--lightblue) 33%);
   height: 5px;
@@ -199,11 +217,17 @@ table {
 }
 
 /* Main */
-.main-heading {
+.heading-main {
   padding: 5px 20px;
 }
+.heading-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 .checkbox {
-  border: 1px solid var(--grey);
+  border: 2px solid #ccc;
+  border-radius: 3px;
   font-size: 18px;
   display: block;
   position: relative;
@@ -212,6 +236,20 @@ table {
 }
 .checkbox.selected {
   background-color: var(--blue);
+  border-color: var(--blue);
+  color: var(--white);
+}
+.checkbox.selected::after {
+  content: '';
+  border-left: 2px solid;
+  border-bottom: 2px solid;
+  display: inline-block;
+  height: .389em;
+  width: .588em;
+  position: absolute;
+  left: .111em;
+  top: .176em;
+  transform: rotate(-45deg);
 }
 
 /* Media queries */
@@ -247,6 +285,7 @@ table {
     padding: 20px;
     margin: 0 auto;
   }
+  .heading-content { flex-wrap: wrap; }
   .table-responsive {
     border: 1px solid var(--grey);
   }
@@ -273,17 +312,16 @@ table {
   .app-main {
     margin-left: var(--header-desktop-width);
   }
-  .heading-holder, .main-heading {
+  .heading-holder, .heading-main {
     background-color: var(--white);
     height: var(--heading-height);
   }
-  .main-heading {
+  .heading-main {
     box-shadow: 0 2px 8px rgba(0,0,0,.1), 0 0 1px 0 rgba(0,0,0,.2);
     position: fixed;
     left: var(--header-desktop-width);
     right: 0;
     top: 0;
-    width: 100%;
     z-index: 100;
   }
   .nav-item {
