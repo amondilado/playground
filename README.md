@@ -1,2 +1,1 @@
-# playground
-coding exercises
+cypress test in external project

@@ -1,7 +1,4 @@
-node_modules/
-build/css/
-build/sound/
-build/vendor/
-assets/img/
+node_modules
+build
 cypress/integration/examples/
 .idea
