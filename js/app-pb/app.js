@@ -4,22 +4,37 @@
     const navToggle = document.getElementById('navToggle');
     const appNav = document.getElementById('appNav');
     const dataContainer = document.getElementById('pageContent');
-    const STORAGE_KEY = '_products';
-    const _strorage = window.sessionStorage;
-    let _productsLoaded = false;
-    let _view;
+    const storage = window.sessionStorage;
+    let currentView;
 
     // Fetch content
     function fetchData(url, callback, params) {
-      const xhr = new XMLHttpRequest();
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-          const res = xhr.responseText;
-          callback(JSON.parse(res), params);
-        }
+      const dataInStorage = storage.getItem(currentView);
+
+      if (dataInStorage) {
+        callback(JSON.parse(dataInStorage), params);
+
+      } else {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.responseType = 'json';
+        xhr.withCredentials = false;
+        xhr.send();
+        xhr.onload = function() {
+          if (xhr.status != 200) { // HTTP-errors
+            console.error(`Error ${xhr.status}: ${xhr.statusText}`);
+
+          } else {
+            const res = xhr.response;
+            callback(res, params);
+            storage.setItem(currentView, JSON.stringify(res));
+          }
+        };
+        xhr.onerror = function() { // non-HTTP error e.g. connection error
+          console.error('Error on transactions');
+        };
       }
-      xhr.open("GET", url, true);
-      xhr.send(null);
     }
 
     // Remove selected class from currently selected checkbox
@@ -29,8 +44,61 @@
     }
 
     // Add new entry
-    function addEntry(entry) {
-    // TODO
+    function addUser() {
+      const nameInput = document.getElementById('userName');
+      const codeInput = document.getElementById('userCode');
+      let alertMessage;
+      const nameInvalid = nameInput.value === '';
+      const codeInvalid = codeInput.value === '';
+      const fieldInvalid = nameInvalid || codeInvalid;
+      const fieldsInvalid = nameInvalid && codeInvalid;
+
+      alertMessage = fieldsInvalid ? 'All fields are required' : nameInvalid ? 'NAME is required' : fieldInvalid ? 'CODE is required' : '';
+
+      if (fieldInvalid) {
+        alert(alertMessage);
+      } else {
+        // TODO add record
+      }
+    }
+
+    // Create new user
+    function createNewUser() {
+      const h1Elem = document.querySelector('h1');
+      const h1Parent = h1Elem.parentNode;
+      const buttonCreate = h1Parent.querySelector('button[data-action="main"]');
+      const buttonBack = h1Parent.querySelector('button[data-action="back"]');
+
+      let htmlString = '<div class="form-group required">\n' +
+        ' <label for="userName">NAME</label>\n' +
+        ' <input id="userName" type="text" required />\n' +
+        '</div>\n' +
+        '<div class="form-group required">\n' +
+        ' <label for="userCode">CODE</label>\n' +
+        ' <input id="userCode" type="text" required />\n' +
+        '</div>';
+
+      // Update view header // TODO
+      h1Elem.innerHTML = 'Add new user';
+
+      // Add elements to DOM
+      dataContainer.innerHTML = htmlString;
+
+      // Update view's buttons
+      buttonCreate.textContent = 'Create';
+      buttonCreate.removeEventListener('click', createNewUser);
+      buttonCreate.addEventListener('click', addUser, true);
+
+      buttonBack.removeAttribute('hidden');
+      buttonBack.removeAttribute('disabled');
+
+      buttonBack.addEventListener('click', function _clickHandler() {
+        document.querySelector('a[href="#users"]').click();
+        buttonCreate.removeEventListener('click', addUser, true);
+        buttonBack.setAttribute('hidden', 'hidden');
+        buttonBack.setAttribute('disabled', 'disabled');
+        buttonBack.removeEventListener('click', _clickHandler, true);
+      }, true);
     }
 
     // Remove selected entry
@@ -40,7 +108,7 @@
 
       if (parentRow && window.confirm("Do you really want to delete this entry?")) {
         // Remove entry from data & storage
-        let storageData = JSON.parse(sessionStorage.getItem(STORAGE_KEY));
+        let storageData = JSON.parse(sessionStorage.getItem(currentView));
 
         if (storageData) {
           storageData = storageData.filter(item => {
@@ -49,7 +117,7 @@
         }
 
         parentRow.remove();
-        _strorage.setItem(STORAGE_KEY, JSON.stringify(storageData));
+        storage.setItem(currentView, JSON.stringify(storageData));
       }
     }
 
@@ -99,30 +167,33 @@
       // window.setTimeout(()=> {
       dataContainer.classList.remove('loader-bar');
       // }, 2000);
-
-      // Set data to storage
-      if (_view === 'products') {
-        _strorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        _productsLoaded = true;
-      }
     }
 
     // Set toolbar actions
     function setToolbarActions(action) {
-      const button = document.querySelector('#toolbar button');
-      const isAddAction = action === "add";
+      const button = document.querySelector('button[data-action="main"]');
+      let buttonText = '';
 
       if (button && action) {
         button.removeAttribute('disabled');
         button.removeAttribute('hidden');
-        button.textContent = isAddAction ? "Add New" : "Delete";
-        isAddAction
-          ? button.addEventListener('click', addEntry)
-          : button.addEventListener('click', removeEntry);
 
+        switch (action) {
+          case 'add':
+            buttonText = "Add new";
+            button.addEventListener('click', createNewUser);
+            break;
+          case 'delete':
+            buttonText = "Delete";
+            button.addEventListener('click', removeEntry)
+            break;
+          default: return false;
+        }
+
+        button.textContent = buttonText;
         dataContainer.addEventListener('click', dataClickHandler);
-      } else {
 
+      } else {
         button.setAttribute('disabled', 'disabled');
         button.setAttribute('hidden', 'hidden');
         button.textContent = "";
@@ -136,39 +207,35 @@
         const fetchUrl = e.target.dataset['url'];
         const action = e.target.dataset['action'];
 
-        _view = target.href && target.href.split('#')[1];
+        currentView = target.href && target.href.split('#')[1];
 
-        if (!target.href || !_view) return;
+        if (!target.href || !currentView) return;
 
         dataContainer.classList.add('loader-bar');
-        _productsLoaded && _view === 'products'
-          ? createTabularData(JSON.parse(sessionStorage.getItem(STORAGE_KEY)), true)
-          : fetchUrl && fetchData(fetchUrl, createTabularData, !!action);
+        fetchUrl && fetchData(fetchUrl, createTabularData, !!action);
 
         document.querySelector('h1').innerHTML = target.innerText;
         setToolbarActions(action);
 
+        // Hide nav
+        window.innerWidth < 992 && navToggle.click();
+
       } catch(error) {
         console.error(error);
       }
-    });
+    }, true);
 
     //region Mobile navigation
     function toggleNavigation(e) {
       e.preventDefault();
       e.stopPropagation();
-      const navElem = e.currentTarget.nextElementSibling;
-
-      navElem && navElem.classList.contains('open')
-        ? navElem.classList.remove('open')
-        : navElem.classList.add('open');
+      const parentElem = e.currentTarget.parentNode;
+      parentElem && parentElem.classList.toggle('nav-open')
     }
 
-    if (window.innerWidth < 992) {
-      navToggle.addEventListener('click', toggleNavigation);
-    } else {
-      navToggle.removeEventListener('click', toggleNavigation);
-    }
+    window.innerWidth < 992
+      ? navToggle.addEventListener('click', toggleNavigation, false)
+      : navToggle.removeEventListener('click', toggleNavigation, false);
     //endregion
 
   }

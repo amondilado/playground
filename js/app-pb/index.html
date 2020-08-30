@@ -22,9 +22,9 @@
       </button>
       <nav id="appNav" class="app-nav">
         <ul class="strong nav">
-          <li class="nav-item"><a class="nav-link" href="#customers" data-url="customers.json">CUSTOMERS</a></li>
-          <li class="nav-item"><a class="nav-link" href="#products" data-url="products.json" data-action="delete">PRODUCTS</a></li>
-          <li class="nav-item"><a class="nav-link" href="#users" data-url="users.json" data-action="add">USERS</a></li>
+          <li class="nav-item"><a class="nav-link" href="#customers" data-url="data/customers.json">CUSTOMERS</a></li>
+          <li class="nav-item"><a class="nav-link" href="#products" data-url="data/products.json" data-action="delete">PRODUCTS</a></li>
+          <li class="nav-item"><a class="nav-link" href="#users" data-url="data/users.json" data-action="add">USERS</a></li>
         </ul>
       </nav>
     </div>
@@ -33,16 +33,15 @@
   <main id="appMain" class="app-main">
     <div class="heading-holder">
       <div class="heading-main" id="mainHeading">
-        <div class="heading-content">
+        <div class="heading-content" id="toolbar">
           <h1>Welcome</h1>
-          <div id="toolbar">
-            <button class="button" type="button" disabled hidden></button>
-          </div>
+          <button class="button" data-action="main" type="button" disabled hidden></button>
+          <button class="button-back" data-action="back" type="button" disabled hidden><span class="sr-only">Back</span></button>
         </div>
       </div>
     </div>
     <div class="page-content" id="pageContent">
-
+    <!-- Main content here -->
     </div>
   </main>
   <!-- END: CODE -->
