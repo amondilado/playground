@@ -22,9 +22,9 @@
       </button>
       <nav id="appNav" class="app-nav">
         <ul class="strong nav">
-          <li class="nav-item"><a class="nav-link" href="#customers" data-url="data/customers.json">CUSTOMERS</a></li>
-          <li class="nav-item"><a class="nav-link" href="#products" data-url="data/products.json" data-action="delete">PRODUCTS</a></li>
-          <li class="nav-item"><a class="nav-link" href="#users" data-url="data/users.json" data-action="add">USERS</a></li>
+          <li class="nav-item"><a class="nav-link" href="#customers" data-endpoint="data/customers.json" data-view="customers">CUSTOMERS</a></li>
+          <li class="nav-item"><a class="nav-link" href="#products" data-endpoint="data/products.json" data-view="products" data-action="delete">PRODUCTS</a></li>
+          <li class="nav-item"><a class="nav-link" href="#users" data-endpoint="data/users.json" data-view="users" data-action="add">USERS</a></li>
         </ul>
       </nav>
     </div>
@@ -33,11 +33,8 @@
   <main id="appMain" class="app-main">
     <div class="heading-holder">
       <div class="heading-main" id="mainHeading">
-        <div class="heading-content" id="toolbar">
-          <h1>Welcome</h1>
-          <button class="button" data-action="main" type="button" disabled hidden></button>
-          <button class="button-back" data-action="back" type="button" disabled hidden><span class="sr-only">Back</span></button>
-        </div>
+        <h1>Welcome</h1>
+        <div class="heading-toolbar" id="toolbar"></div>
       </div>
     </div>
     <div class="page-content" id="pageContent">
@@ -46,6 +43,36 @@
   </main>
   <!-- END: CODE -->
 </div>
+<!-- Templates -->
+<template id="templateButton_add">
+  <button class="button" data-action="add" type="button">Add</button>
+</template>
+<template id="templateButton_create">
+  <button class="button" data-action="create" type="button">Create</button>
+</template>
+<template id="templateButton_delete">
+  <button class="button" data-action="delete" type="button" disabled>Delete</button>
+</template>
+<template id="templateButton_back">
+  <button class="button-back" data-action="back" type="button"><span class="sr-only">Back</span></button>
+</template>
+
+<template id="templateCreateUserForm">
+  <form action="#">
+    <div class="form-group required">
+      <label for="userFirstName">FIRST NAME</label>
+      <input id="userFirstName" type="text" name="userFirstName" placeholder="e.g. John" required autocomplete="off">
+    </div>
+    <div class="form-group required">
+      <label for="userLastName">NAME</label>
+      <input id="userLastName" type="text" name="userLastName" placeholder="e.g. Smith" required autocomplete="off">
+    </div>
+    <div class="form-group required">
+      <label for="userEmail">EMAIL</label>
+      <input id="userEmail" type="email" name="userEmail" placeholder="e.g. johnsmith@domain.ext" required autocomplete="off">
+    </div>
+  </form>
+</template>
 <!-- SCRIPT -->
 <script src="app.js"></script>
 </body>

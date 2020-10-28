@@ -1,18 +1,27 @@
-(function(){
+(function() {
     // START: CODE
   function initApp() {
     const navToggle = document.getElementById('navToggle');
     const appNav = document.getElementById('appNav');
+    const toolbar = document.getElementById('toolbar');
     const dataContainer = document.getElementById('pageContent');
     const storage = window.sessionStorage;
     let currentView;
 
+    // Reset app state
+    document.querySelector('a[href="#home"]').addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector('h1').innerText = 'Welcome';
+      dataContainer.innerHTML = '';
+      toolbar.innerHTML = '';
+    });
+
     // Fetch content
-    function fetchData(url, callback, params) {
+    function fetchData(url, callback) {
       const dataInStorage = storage.getItem(currentView);
 
       if (dataInStorage) {
-        callback(JSON.parse(dataInStorage), params);
+        callback(JSON.parse(dataInStorage));
 
       } else {
         const xhr = new XMLHttpRequest();
@@ -22,13 +31,13 @@
         xhr.withCredentials = false;
         xhr.send();
         xhr.onload = function() {
-          if (xhr.status != 200) { // HTTP-errors
+          if (xhr.status !== 200) { // HTTP-errors
             console.error(`Error ${xhr.status}: ${xhr.statusText}`);
 
           } else {
             const res = xhr.response;
-            callback(res, params);
-            storage.setItem(currentView, JSON.stringify(res));
+            callback(res.data);
+            storage.setItem(currentView, JSON.stringify(res.data));
           }
         };
         xhr.onerror = function() { // non-HTTP error e.g. connection error
@@ -39,7 +48,7 @@
 
     // Remove selected class from currently selected checkbox
     function clearSelection() {
-      const selectedCheckbox = document.querySelector('#pageContent .checkbox.selected');
+      const selectedCheckbox = dataContainer.querySelector('.checkbox.selected');
       selectedCheckbox && selectedCheckbox.classList.remove('selected');
     }
 
@@ -53,7 +62,7 @@
       const fieldInvalid = nameInvalid || codeInvalid;
       const fieldsInvalid = nameInvalid && codeInvalid;
 
-      alertMessage = fieldsInvalid ? 'All fields are required' : nameInvalid ? 'NAME is required' : fieldInvalid ? 'CODE is required' : '';
+      alertMessage = fieldsInvalid ? 'All fields are required' : nameInvalid ? 'NAME is required' : codeInvalid ? 'CODE is required' : '';
 
       if (fieldInvalid) {
         alert(alertMessage);
@@ -64,46 +73,41 @@
 
     // Create new user
     function createNewUser() {
-      const h1Elem = document.querySelector('h1');
-      const h1Parent = h1Elem.parentNode;
-      const buttonCreate = h1Parent.querySelector('button[data-action="main"]');
-      const buttonBack = h1Parent.querySelector('button[data-action="back"]');
+      setViewHeader('Add new user', 'create');
 
-      let htmlString = '<div class="form-group required">\n' +
-        ' <label for="userName">NAME</label>\n' +
-        ' <input id="userName" type="text" required />\n' +
-        '</div>\n' +
-        '<div class="form-group required">\n' +
-        ' <label for="userCode">CODE</label>\n' +
-        ' <input id="userCode" type="text" required />\n' +
-        '</div>';
+      const buttonCreate = toolbar.querySelector('button');
+      const buttonBackTemplate = document.getElementById('templateButton_back');
+      const buttonBackClone = buttonBackTemplate && buttonBackTemplate.content.cloneNode(true);
+      const toolbarParentNode = toolbar.parentNode;
+      const formTemplate = document.getElementById('templateCreateUserForm');
+      const formClone = formTemplate && formTemplate.content.cloneNode(true);
 
-      // Update view header // TODO
-      h1Elem.innerHTML = 'Add new user';
+      dataContainer.innerHTML = '';
 
-      // Add elements to DOM
-      dataContainer.innerHTML = htmlString;
+      // Set toolbar buttons
+      buttonBackTemplate && toolbarParentNode.insertBefore(buttonBackClone, toolbar.nextSibling);//&& toolbar.appendChild(buttonBackClone);
+      const buttonBack = toolbarParentNode.querySelector('button[data-action="back"]');
 
-      // Update view's buttons
-      buttonCreate.textContent = 'Create';
-      buttonCreate.removeEventListener('click', createNewUser);
+      // Set view content
+      if (formTemplate) {
+        dataContainer.appendChild(formClone);
+
+      } else {
+        dataContainer.innerText = 'Form data could not be initialized.';
+      }
+      // Add events
+      buttonBack.addEventListener('click', () => {
+        const usersLink = document.querySelector('a[data-view="users"]');
+        buttonBack.remove();
+        usersLink && usersLink.click();
+      });
+
       buttonCreate.addEventListener('click', addUser, true);
-
-      buttonBack.removeAttribute('hidden');
-      buttonBack.removeAttribute('disabled');
-
-      buttonBack.addEventListener('click', function _clickHandler() {
-        document.querySelector('a[href="#users"]').click();
-        buttonCreate.removeEventListener('click', addUser, true);
-        buttonBack.setAttribute('hidden', 'hidden');
-        buttonBack.setAttribute('disabled', 'disabled');
-        buttonBack.removeEventListener('click', _clickHandler, true);
-      }, true);
     }
 
     // Remove selected entry
     function removeEntry() {
-      const selectedCheckbox = document.querySelector('#pageContent .checkbox.selected');
+      const selectedCheckbox = dataContainer.querySelector('.checkbox.selected');
       const parentRow = selectedCheckbox && selectedCheckbox.closest("tr");
 
       if (parentRow && window.confirm("Do you really want to delete this entry?")) {
@@ -112,7 +116,7 @@
 
         if (storageData) {
           storageData = storageData.filter(item => {
-            return item.code !== selectedCheckbox.dataset['code'];
+            return item.id !== +selectedCheckbox.dataset['id'];
           });
         }
 
@@ -125,36 +129,50 @@
       const _t = e.target;
       if(!_t || _t.tagName !== 'SPAN') return;
 
-      // remove selected class from previous selected checkbox
-      clearSelection();
+      const deleteButton = toolbar.querySelector('button[data-action="delete"]');
+      const isSelected = _t.classList.contains('selected');
 
-      // add selected class to last selected checkbox
-      _t.classList.contains('selected')
-        ? _t.classList.remove('selected')
-        : _t.classList.add('selected');
+      // remove selected class from previous selected checkbox. and disable button
+      clearSelection();
+      deleteButton && deleteButton.setAttribute('disabled','disabled');
+
+      // add selected class to selection
+      if (isSelected) {
+        _t.classList.remove('selected');
+
+      } else {
+        _t.classList.add('selected');
+        deleteButton && deleteButton.removeAttribute('disabled');
+      }
     }
 
-    function createTabularData(data, actionEnabled) {
+    function createTabularData(data) {
       const keys = Object.keys(data[0]);
       const tableWrapper = document.createElement('div');
-      let headers = actionEnabled ? '<tr><th></th>': '<tr>';
+      const selectionEnabled = currentView === 'products';
+      let headers = selectionEnabled ? '<tr><th></th>': '<tr>';
       let rowsHtml = '';
 
       // Create table headers
       keys.map(key => {
-        headers += `<th>${key.toUpperCase()}</th>`;
+        headers += `<th>${key.toUpperCase().replace('_',' ')}</th>`;
       });
       headers += '</tr>';
 
       // Create rows and cells
       data.map(item => {
         rowsHtml += '<tr>';
-        if(actionEnabled) {
-          rowsHtml += `<td width="50"><span class="checkbox" data-code=${item['code']}></span></td>`;
+        if (selectionEnabled) {
+          rowsHtml += `<td width="50"><span class="checkbox" data-id=${item['id']}></span></td>`;
         }
 
         for (const property in item) {
-          rowsHtml += `<td>${item[property]}</td>`;
+          let itemValue = item[property];
+          if (property === 'avatar') {
+            let split = itemValue.split('/');
+            itemValue = split[split.length - 2];
+          }
+          rowsHtml += `<td>${itemValue}</td>`;
         }
         rowsHtml += ('</tr>')
       });
@@ -169,61 +187,58 @@
       // }, 2000);
     }
 
-    // Set toolbar actions
-    function setToolbarActions(action) {
-      const button = document.querySelector('button[data-action="main"]');
-      let buttonText = '';
+    // Set view header
+    function setViewHeader(title, action) {
+      const heading = document.querySelector('h1');
 
-      if (button && action) {
-        button.removeAttribute('disabled');
-        button.removeAttribute('hidden');
+      // Set view heading title
+      heading && (heading.innerHTML = title)
+      // Reset toolbar
+      toolbar.innerHTML = '';
 
-        switch (action) {
-          case 'add':
-            buttonText = "Add new";
-            button.addEventListener('click', createNewUser);
-            break;
-          case 'delete':
-            buttonText = "Delete";
-            button.addEventListener('click', removeEntry)
-            break;
-          default: return false;
-        }
+      if (!action) return;
 
-        button.textContent = buttonText;
-        dataContainer.addEventListener('click', dataClickHandler);
+      // Update toolbar
+      const buttonTemplate = document.getElementById(`templateButton_${action}`);
+      const buttonClone = buttonTemplate && buttonTemplate.content.cloneNode(true);
 
-      } else {
-        button.setAttribute('disabled', 'disabled');
-        button.setAttribute('hidden', 'hidden');
-        button.textContent = "";
-        dataContainer.removeEventListener('click', dataClickHandler);
+      buttonTemplate && toolbar.appendChild(buttonClone);
+    }
+
+    // Update view
+    function updateView(title, action) {
+      setViewHeader(title, action);
+
+      const button = toolbar.querySelector('button');
+
+      // Set event listeners
+      action
+        ? dataContainer.addEventListener('click', dataClickHandler)
+        : dataContainer.removeEventListener('click', dataClickHandler);
+
+      if (currentView === 'products') {
+        button.addEventListener('click', removeEntry);
+      } else if (currentView === 'users') {
+        button.addEventListener('click', createNewUser);
       }
     }
 
     appNav.addEventListener('click', function(e) {
-      try {
-        const target = e.target;
-        const fetchUrl = e.target.dataset['url'];
-        const action = e.target.dataset['action'];
+      const target = e.target;
+      const fetchUrl = target && target.dataset['endpoint'];
+      const action = target && target.dataset['action'];
 
-        currentView = target.href && target.href.split('#')[1];
+      currentView = target.dataset['view'];
+      if (!target.href || !currentView) return;
 
-        if (!target.href || !currentView) return;
+      dataContainer.classList.add('loader-bar');
+      fetchUrl && fetchData(fetchUrl, createTabularData);
 
-        dataContainer.classList.add('loader-bar');
-        fetchUrl && fetchData(fetchUrl, createTabularData, !!action);
+      updateView(target.innerText, action);
 
-        document.querySelector('h1').innerHTML = target.innerText;
-        setToolbarActions(action);
-
-        // Hide nav
-        window.innerWidth < 992 && navToggle.click();
-
-      } catch(error) {
-        console.error(error);
-      }
-    }, true);
+      // Hide mobile nav
+      window.innerWidth < 992 && navToggle.click();
+    });
 
     //region Mobile navigation
     function toggleNavigation(e) {
@@ -237,7 +252,6 @@
       ? navToggle.addEventListener('click', toggleNavigation, false)
       : navToggle.removeEventListener('click', toggleNavigation, false);
     //endregion
-
   }
 
   // Alternative to DOMContentLoaded event
